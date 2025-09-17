@@ -9,24 +9,20 @@
     <p><span class="font-semibold">Ativo:</span> ${usuario.ativo}</p>
   </div>
   <div class="flex gap-3 mt-6">
-    <jsp:include page="/WEB-INF/views/partials/button.jsp">
-      <jsp:param name="href" value="/usuarios/${usuario.id}/editar" />
-      <jsp:param name="text" value="Editar" />
-      <jsp:param name="color" value="yellow" />
-      <jsp:param name="class" value="px-4 py-2 font-semibold" />
-    </jsp:include>
-    <jsp:include page="/WEB-INF/views/partials/button.jsp">
-      <jsp:param name="href" value="/usuarios/${usuario.id}/excluir" />
-      <jsp:param name="text" value="Excluir" />
-      <jsp:param name="color" value="red" />
-      <jsp:param name="class" value="px-4 py-2 font-semibold" />
-      <jsp:param name="alt" value="Excluir usuário" />
-    </jsp:include>
-    <jsp:include page="/WEB-INF/views/partials/button.jsp">
-      <jsp:param name="href" value="/usuarios" />
-      <jsp:param name="text" value="Voltar à lista" />
-      <jsp:param name="color" value="blue" />
-      <jsp:param name="class" value="px-4 py-2 font-semibold" />
-    </jsp:include>
+    <a
+      href="/usuarios/${usuario.id}/editar"
+      class="px-4 py-2 rounded font-semibold bg-yellow-500 text-white hover:bg-yellow-600 transition focus:outline-none"
+      >Editar</a
+    >
+    <a
+      href="/usuarios/${usuario.id}/excluir"
+      class="px-4 py-2 rounded font-semibold bg-red-600 text-white hover:bg-red-700 transition focus:outline-none"
+      >Excluir</a
+    >
   </div>
+  <a
+    href="/usuarios"
+    class="block text-center text-md text-gray-500 mt-4 hover:underline"
+    >Voltar</a
+  >
 </div>

@@ -10,33 +10,34 @@
   </c:if>
   <form class="space-y-4" action="/usuarios/criar" method="post">
     <div>
-      <jsp:include page="/WEB-INF/views/partials/input.jsp">
-        <jsp:param name="type" value="text"/>
-        <jsp:param name="id" value="nome"/>
-        <jsp:param name="name" value="nome"/>
-        <jsp:param name="value" value="${usuarioRequest.nome}"/>
-        <jsp:param name="label" value="Nome:"/>
-        <jsp:param name="required" value="true"/>
-      </jsp:include>
+        <label for="nome" class="block font-semibold mb-1">Nome:</label>
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          value="${usuarioRequest.nome}"
+          minlength="1"
+          maxlength="100"
+          class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
     </div>
     <div>
-      <jsp:include page="/WEB-INF/views/partials/input.jsp">
-        <jsp:param name="type" value="email"/>
-        <jsp:param name="id" value="email"/>
-        <jsp:param name="name" value="email"/>
-        <jsp:param name="value" value="${usuarioRequest.email}"/>
-        <jsp:param name="label" value="Email:"/>
-        <jsp:param name="required" value="true"/>
-      </jsp:include>
+      <label for="email" class="block font-semibold mb-1">Email:</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        value="${usuarioRequest.email}"
+        minlength="5"
+        maxlength="255"
+        class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
     </div>
     <div>
-      <jsp:include page="/WEB-INF/views/partials/input.jsp">
-        <jsp:param name="type" value="password"/>
-        <jsp:param name="id" value="senha"/>
-        <jsp:param name="name" value="senha"/>
-        <jsp:param name="label" value="Senha:"/>
-        <jsp:param name="required" value="true"/>
-      </jsp:include>
+      <label for="password" class="block font-semibold mb-1">Senha:</label>
+      <input type="password" id="senha" name="senha" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" minlength="8" maxlength="255" required />
     </div>
     <div>
       <label for="role" class="block font-semibold mb-1">Role:</label>
@@ -48,17 +49,7 @@
       </select>
     </div>
     <input type="hidden" name="ativo" value="true" />
-    <jsp:include page="/WEB-INF/views/partials/button.jsp">
-      <jsp:param name="type" value="submit"/>
-      <jsp:param name="text" value="Criar"/>
-      <jsp:param name="color" value="blue"/>
-      <jsp:param name="class" value="w-full"/>
-    </jsp:include>
+    <button type="submit" class="w-full px-4 py-2 rounded font-semibold bg-blue-700 text-white hover:bg-blue-800 transition focus:outline-none">Criar</button>
   </form>
-  <jsp:include page="/WEB-INF/views/partials/button.jsp">
-    <jsp:param name="href" value="/usuarios"/>
-    <jsp:param name="text" value="Voltar à lista"/>
-    <jsp:param name="color" value="gray"/>
-    <jsp:param name="class" value="mt-6 w-full"/>
-  </jsp:include>
+  <a href="/usuarios" class="block text-center text-md text-gray-500 mt-4 hover:underline">Voltar à lista</a>
 </div>

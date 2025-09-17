@@ -9,51 +9,52 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.dunnas.reservasalas.core.auth.CustomAuthenticationFailureHandler;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    private com.dunnas.reservasalas.core.auth.CustomAuthenticationFailureHandler customFailureHandler;
+	@Autowired
+	private CustomAuthenticationFailureHandler customFailureHandler;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                // desabilitar CSRF para simplificar (não recomendado para produção)
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // Todas as rotas públicas
-                        .requestMatchers("/entrar", "/processar-login").permitAll()
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				// desabilitar CSRF para simplificar (não recomendado para produção)
+				.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(auth -> auth
+						// Todas as rotas públicas
+						.requestMatchers("/entrar", "/processar-login").permitAll()
 
-                        // Clientes não podem criar criar usuários
-                        .requestMatchers("/usuarios/criar")
-                        .hasAnyAuthority("ADMINISTRADOR", "RECEPCIONISTA")
-                        .requestMatchers("/usuarios/*/editar").authenticated()
+						// Clientes não podem criar criar usuários
+						.requestMatchers("/usuarios/criar")
+						.hasAnyAuthority("ADMINISTRADOR", "RECEPCIONISTA")
 
-                        .requestMatchers("/WEB-INF/views/**", "/entrar",
-                                "/index",
-                                "/static/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
+						.requestMatchers("/WEB-INF/views/**", "/entrar",
+								"/index",
+								"/static/**")
+						.permitAll()
+						.anyRequest().authenticated())
 
-                .formLogin(form -> form
-                        .loginPage("/entrar")
-                        .loginProcessingUrl("/processing-login")
-                        .failureHandler(customFailureHandler)
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/entrar?logout")
-                        .permitAll());
+				.formLogin(form -> form
+						.loginPage("/entrar")
+						.loginProcessingUrl("/processing-login")
+						.failureHandler(customFailureHandler)
+						.usernameParameter("email")
+						.passwordParameter("password")
+						.defaultSuccessUrl("/", true)
+						.permitAll())
+				.logout(logout -> logout
+						.logoutUrl("/logout")
+						.logoutSuccessUrl("/entrar?logout")
+						.permitAll());
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
 }

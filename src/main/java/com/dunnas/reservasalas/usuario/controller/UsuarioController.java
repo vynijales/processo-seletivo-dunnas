@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -75,8 +74,9 @@ public class UsuarioController extends HttpServlet {
         return "base";
     }
 
-    @GetMapping("/usuarios/{id}/editar")
-    @PreAuthorize("hasAuthority('ADMINISTRADOR') or hasAuthority('RECEPCIONISTA') or authentication.principal.id == #id")
+    // @PreAuthorize("hasAuthority('ADMINISTRADOR') or
+    // hasAuthority('RECEPCIONISTA')")
+    @GetMapping("/{id}/editar")
     public String editForm(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
         UsuarioRequest request = UsuarioRequest.builder()
@@ -101,18 +101,6 @@ public class UsuarioController extends HttpServlet {
         if (usuarioRequest.getSenha() == null || usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
         }
-
-        // Printar erros de validação
-        System.out.println(result.getAllErrors());
-        // Resultado:
-        // [Field error in object 'usuarioRequest' on field 'ativo': rejected value
-        // [null]; codes
-        // [typeMismatch.usuarioRequest.ativo,typeMismatch.ativo,typeMismatch.boolean,typeMismatch];
-        // arguments
-        // [org.springframework.context.support.DefaultMessageSourceResolvable: codes
-        // [usuarioRequest.ativo,ativo]; arguments []; default message [ativo]]; default
-        // message [Failed to convert value of type 'null' to required type 'boolean';
-        // Failed to convert from type [null] to type [boolean] for value [null]]]
 
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);

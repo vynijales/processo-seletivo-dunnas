@@ -13,13 +13,8 @@ public class UsuarioMapper {
                 .email(request.getEmail())
                 .senha(request.getSenha())
                 .role(request.getRole())
+                .ativo(request.isAtivo())
                 .build();
-    }
-
-    public void updateEntityFromRequest(UsuarioRequest request, Usuario usuario) {
-        usuario.setNome(request.getNome());
-        usuario.setEmail(request.getEmail());
-        usuario.setRole(request.getRole());
     }
 
 }

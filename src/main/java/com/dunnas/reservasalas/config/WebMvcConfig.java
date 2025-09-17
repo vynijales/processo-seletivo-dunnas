@@ -12,10 +12,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(@NonNull ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
 
-        registry.addViewController("/usuarios").setViewName("admin/features/lista");
-        registry.addViewController("/usuarios/criar").setViewName("features/usuario/form-criar");
     }
 
     @Bean

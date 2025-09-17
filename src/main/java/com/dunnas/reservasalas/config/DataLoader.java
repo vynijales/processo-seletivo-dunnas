@@ -20,14 +20,12 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        criarUsuarioSeNaoExistir();
+        criarUsuarioSeNaoExistir("Admin", "admin@dunnas.com", "admin123", UsuarioRole.ADMINISTRADOR);
+        criarUsuarioSeNaoExistir("Recepcionista", "recepcionista@dunnas.com", "recep123", UsuarioRole.RECEPCIONISTA);
+        criarUsuarioSeNaoExistir("Cliente", "cliente@dunnas.com", "cliente123", UsuarioRole.CLIENTE);
     }
 
-    private void criarUsuarioSeNaoExistir() {
-        String nome = "Admin";
-        String email = "admin@email.com";
-        String senha = "admin123";
-        UsuarioRole role = UsuarioRole.ADMINISTRADOR;
+    private void criarUsuarioSeNaoExistir(String nome, String email, String senha, UsuarioRole role) {
         boolean ativo = true;
 
         if (!userRepository.existsByEmail(email)) {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -55,23 +56,27 @@ public class UsuarioController extends HttpServlet {
         model.addAttribute("totalPages", usuarios.getTotalPages());
         model.addAttribute("totalItems", usuarios.getTotalElements());
 
-        return "features/usuario/lista";
+        model.addAttribute("contentPage", "features/usuario/lista.jsp");
+        return "base";
     }
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
         model.addAttribute("usuario", usuario);
-        return "features/usuario/detalhes";
+        model.addAttribute("contentPage", "features/usuario/detalhes.jsp");
+        return "base";
     }
 
     @GetMapping("/criar")
     public String createForm(Model model) {
         model.addAttribute("usuarioRequest", UsuarioRequest.builder().build());
-        return "features/usuario/form-criar";
+        model.addAttribute("contentPage", "features/usuario/form-criar.jsp");
+        return "base";
     }
 
-    @GetMapping("/{id}/editar")
+    @GetMapping("/usuarios/{id}/editar")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR') or hasAuthority('RECEPCIONISTA') or authentication.principal.id == #id")
     public String editForm(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
         UsuarioRequest request = UsuarioRequest.builder()
@@ -81,7 +86,9 @@ public class UsuarioController extends HttpServlet {
                 .role(usuario.getRole())
                 .build();
         model.addAttribute("usuarioRequest", request);
-        return "features/usuario/form-editar";
+        model.addAttribute("contentPage", "features/usuario/form-editar.jsp");
+
+        return "base";
     }
 
     @PostMapping("/criar")
@@ -94,10 +101,24 @@ public class UsuarioController extends HttpServlet {
         if (usuarioRequest.getSenha() == null || usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
         }
+
+        // Printar erros de validação
+        System.out.println(result.getAllErrors());
+        // Resultado:
+        // [Field error in object 'usuarioRequest' on field 'ativo': rejected value
+        // [null]; codes
+        // [typeMismatch.usuarioRequest.ativo,typeMismatch.ativo,typeMismatch.boolean,typeMismatch];
+        // arguments
+        // [org.springframework.context.support.DefaultMessageSourceResolvable: codes
+        // [usuarioRequest.ativo,ativo]; arguments []; default message [ativo]]; default
+        // message [Failed to convert value of type 'null' to required type 'boolean';
+        // Failed to convert from type [null] to type [boolean] for value [null]]]
+
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
             model.addAttribute("errors", result.getAllErrors());
-            return "features/usuario/form-criar";
+            model.addAttribute("contentPage", "features/usuario/form-criar.jsp");
+            return "base";
         }
         try {
             Usuario savedUsuario = usuarioService.create(usuarioRequest);
@@ -118,13 +139,15 @@ public class UsuarioController extends HttpServlet {
             RedirectAttributes redirectAttributes,
             Model model) {
         // Validação manual da senha na edição (só se preenchida)
-        if (usuarioRequest.getSenha() != null && !usuarioRequest.getSenha().isBlank() && usuarioRequest.getSenha().length() < 8) {
+        if (usuarioRequest.getSenha() != null && !usuarioRequest.getSenha().isBlank()
+                && usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
         }
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
             model.addAttribute("errors", result.getAllErrors());
-            return "features/usuario/form-editar";
+            model.addAttribute("contentPage", "features/usuario/form-editar.jsp");
+            return "base";
         }
         try {
             usuarioRequest.setId(id); // Garante que o id está correto
@@ -146,6 +169,7 @@ public class UsuarioController extends HttpServlet {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erro ao excluir usuário: " + e.getMessage());
         }
+
         return "redirect:/usuarios";
     }
 }

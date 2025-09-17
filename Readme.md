@@ -1,5 +1,55 @@
 # Sistema de Gerenciamento de Reserva de Salas
 
+## Arquitetura
+- **Feature-based:** admin, recepcionista, cliente, auth, core
+- **MVC:** Model (entities, repositories), View (JSPs), Controller (REST endpoints), Service (business logic)
+- **Spring Boot + JSP + PostgreSQL + Flyway**
+
+## Diagrama Relacional
+```
+USUARIO (id, nome, email, senha, role, ativo)
+   |
+   |--< SETOR (id, nome, recepcionista_id, caixa, ativo)
+         |
+         |--< SALA (id, nome, setor_id, valor, capacidade, ativo)
+
+RESERVA (id, sala_id, cliente_id, recepcionista_id, status, data_inicio, data_fim, valor, sinal_pago, ...)
+   |
+   |--< TRANSACAO (id, reserva_id, tipo, valor, usuario_id, data)
+```
+
+## Setup
+1. Clone o projeto
+2. Configure o banco PostgreSQL e credenciais em `application.yaml`
+3. Execute as migrações Flyway (`mvn flyway:migrate`)
+4. Build e rode o projeto (`./mvnw spring-boot:run`)
+5. Acesse via navegador (`http://localhost:8080`)
+6. Admin inicial: `admin@reservasalas.com` / senha: `adminpasswordhash` (troque para hash real)
+
+## Lógica de Negócio
+- **No banco:**
+  - Prevenção de duplo agendamento (trigger)
+  - Atualização de caixa do setor (trigger)
+  - Transações de pagamento (trigger)
+  - Relatórios/histórico (views)
+- **Na aplicação:**
+  - Orquestração, validação, fluxo de usuário, autenticação
+
+## Decisões
+- Feature folders para escalabilidade
+- Lógica crítica no banco para performance e integridade
+- Spring Security para RBAC
+- JSP para views simples e dinâmicas
+
+## Observações
+- Adicione recepcionistas e setores via admin
+- Clientes podem se registrar livremente
+- Recepcionista gerencia apenas seu setor
+- Relatórios disponíveis por papel
+
+---
+Para dúvidas, consulte o código ou entre em contato.
+
 ## 📋 Descrição do Projeto
 
 Sistema de gerenciamento de reservas de salas com três tipos de usuários: Administrador, Recepcionista e Cliente.
@@ -71,6 +121,26 @@ sistema-reserva-salas/
 │   └── database-diagram.md
 └── README.md
 ```
+
+## Arquitetura de persistência e camadas
+
+ Banco de Dados
+     ^
+     | (Lê/Grava)
+     |
+[ ENTITY ]  ->  (Camada de Persistência: Repository)
+     ^
+     | (Usa)
+     |
+[ SERVICE ]  ->  (Camada de Lógica de Negócio)
+     ^
+     | (Usa/Conversão)
+     |
+[ CONTROLLER ]
+     ^
+     | (Retorna)
+     |
+[  DTO   ]  <-  (Data Transfer Object) -> [ VIEW / API RESPONSE ]
 
 ## ⚙️ Setup e Configuração
 

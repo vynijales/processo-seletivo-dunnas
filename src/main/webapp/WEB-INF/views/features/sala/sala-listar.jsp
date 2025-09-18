@@ -3,11 +3,11 @@ prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> <%@ page
 import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 
 <div class="container mx-auto px-4 py-8 space-y-4">
-  <h1 class="text-2xl font-bold text-blue-700 mb-6">Setores</h1>
+  <h1 class="text-2xl font-bold text-blue-700 mb-6">Salas</h1>
   <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
     <jsp:include page="/WEB-INF/views/partials/button.jsp">
-      <jsp:param name="href" value="/setores/criar" />
-      <jsp:param name="text" value="Novo Setor" />
+      <jsp:param name="href" value="/salas/criar" />
+      <jsp:param name="text" value="Nova sala" />
       <jsp:param name="color" value="blue" />
       <jsp:param name="class" value="mb-4" />
     </jsp:include>
@@ -18,24 +18,27 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
         <tr class="bg-blue-100 text-blue-700">
           <th class="px-4 py-2 text-left">ID</th>
           <th class="px-4 py-2 text-left">Nome</th>
-          <th class="px-4 py-2 text-left">Valor caixa</th>
-          <th class="px-4 py-2 text-left">Recepcionista</th>
+          <th class="px-4 py-2 text-left">Capacidade</th>
+          <th class="px-4 py-2 text-left">Alguel (R$)</th>
+
+          <th class="px-4 py-2 text-left">Setor</th>
           <th class="px-4 py-2 text-left">Ações</th>
         </tr>
       </thead>
       <tbody>
-        <c:forEach var="s" items="${setores.content}">
+        <c:forEach var="s" items="${salas.content}">
           <tr class="border-b hover:bg-blue-50">
             <td class="px-4 py-2">${s.id}</td>
             <td class="px-4 py-2">${s.nome}</td>
-            <td class="px-4 py-2">${s.valorCaixa}</td>
+            <td class="px-4 py-2">${s.capacidade}</td>
+            <td class="px-4 py-2">${s.valorAluguel}</td>
+
             <td class="px-4 py-2">
-              ${s.recepcionista != null ?
-              Capitalizar.capitalizar(s.recepcionista.nome) : 'N/A'}
+              ${s.setor != null ? Capitalizar.capitalizar(s.setor.nome) : 'N/A'}
             </td>
             <td class="px-4 py-2 flex gap-2">
               <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                <jsp:param name="href" value="/setores/${s.id}" />
+                <jsp:param name="href" value="/salas/${s.id}" />
                 <jsp:param name="text" value="Ver" />
                 <jsp:param name="color" value="blue" />
                 <jsp:param name="class" value="px-3 py-1 text-sm" />
@@ -43,7 +46,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 
               <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
                 <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                  <jsp:param name="href" value="/setores/${s.id}/editar" />
+                  <jsp:param name="href" value="/salas/${s.id}/editar" />
                   <jsp:param name="text" value="Editar" />
                   <jsp:param name="color" value="yellow" />
                   <jsp:param name="class" value="px-3 py-1 text-sm" />
@@ -52,7 +55,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 
               <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
                 <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                  <jsp:param name="href" value="/setores/${s.id}/excluir" />
+                  <jsp:param name="href" value="/salas/${s.id}/excluir" />
                   <jsp:param name="text" value="Excluir" />
                   <jsp:param name="color" value="red" />
                   <jsp:param name="class" value="px-3 py-1 text-sm" />

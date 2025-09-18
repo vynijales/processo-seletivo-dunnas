@@ -1,5 +1,7 @@
 package com.dunnas.reservasalas.setores.service;
 
+import java.util.List;
+
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -21,12 +23,24 @@ public class SetorService {
         return setorRepository.findAll(pageable);
     }
 
+    public List<Setor> list() {
+        return setorRepository.findAll();
+    }
+
     public Page<Setor> search(String query, Pageable pageable) {
-        return setorRepository.findByNomeLike(query, pageable);
+        return setorRepository.findByNomeContainingIgnoreCase(query, pageable);
+    }
+
+    public List<Setor> search(String query) {
+        return setorRepository.findByNomeContainingIgnoreCase(query);
     }
 
     public Setor getById(Long id) {
         return setorRepository.findById(id).orElse(null);
+    }
+
+    public List<Setor> getAllByRecepcionistaId(Long id) {
+        return setorRepository.findAllByRecepcionistaId(id);
     }
 
     @Transactional

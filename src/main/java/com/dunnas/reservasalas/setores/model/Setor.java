@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import com.dunnas.reservasalas.core.model.BaseEntity;
@@ -42,6 +43,7 @@ public class Setor extends BaseEntity {
     private String nome;
 
     @NotNull(message = "O valor do caixa é obrigatório")
+    @PositiveOrZero
     @Column(name = "valor_caixa", nullable = false, columnDefinition = "NUMERIC(10,2) DEFAULT 0.00")
     private Double valorCaixa;
 

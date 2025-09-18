@@ -4,7 +4,7 @@
 <%
 // Definir se é criação ou edição
 boolean isEdicao = request.getAttribute("setor") != null;
-String titulo = isEdicao ? "Editar Setor" : "Novo Setor";
+String titulo = isEdicao ? "Editar setor" : "Novo setor";
 String textoBotao = isEdicao ? "Editar" : "Criar";
 %>
 
@@ -29,6 +29,7 @@ String textoBotao = isEdicao ? "Editar" : "Criar";
         value="${not empty setor.nome ? setor.nome : setorRequest.nome}"
         minlength="1"
         maxlength="100"
+        placeholder="Digite o nome"
         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         required
       />
@@ -42,6 +43,7 @@ String textoBotao = isEdicao ? "Editar" : "Criar";
         value="${not empty setor.valorCaixa ? setor.valorCaixa : setorRequest.valorCaixa}"
         min="0"
         step="0.01"
+        placeholder="Digite o valor do caixa"
         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         required
       />

@@ -30,6 +30,7 @@
         value="${usuarioRequest.nome}"
         minlength="1"
         maxlength="100"
+        placeholder="Digite o nome"
         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         required
       />
@@ -44,6 +45,7 @@
         value="${usuarioRequest.email}"
         minlength="5"
         maxlength="255"
+        placeholder="Digite o e-mail"
         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         required
       />
@@ -60,6 +62,7 @@
         type="password" 
         id="senha" 
         name="senha" 
+        placeholder="Digite a senha"
         class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
         <c:if test="${not isEdicao}">minlength="8" required</c:if>
         maxlength="255"

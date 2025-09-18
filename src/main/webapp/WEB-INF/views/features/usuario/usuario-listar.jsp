@@ -35,7 +35,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
                 <td class="px-4 py-2">${Capitalizar.capitalizar(u.role)}</td>
                 <td class="px-4 py-2 flex gap-2">
                   <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                    <jsp:param name="href" value="/usuarios/${usuario.id}" />
+                    <jsp:param name="href" value="/usuarios/${u.id}" />
                     <jsp:param name="text" value="Ver" />
                     <jsp:param name="color" value="blue" />
                     <jsp:param name="class" value="px-3 py-1 text-sm" />
@@ -59,7 +59,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
                     <jsp:include page="/WEB-INF/views/partials/button.jsp">
                       <jsp:param
                         name="href"
-                        value="/usuarios/${usuario.id}/excluir"
+                        value="/usuarios/${u.id}/excluir"
                       />
                       <jsp:param name="text" value="Excluir" />
                       <jsp:param name="color" value="red" />

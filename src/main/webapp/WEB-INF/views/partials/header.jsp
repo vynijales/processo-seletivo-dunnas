@@ -12,7 +12,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
     <nav class="main-nav flex gap-6">
       <a href="/" class="hover:text-blue-200 transition">Início</a>
       <a href="/salas" class="hover:text-blue-200 transition">Salas</a>
-      <a href="/reservas" class="hover:text-blue-200 transition">Reservas</a>
+      <a href="/setores" class="hover:text-blue-200 transition">Setores</a>
       <a href="/usuarios" class="hover:text-blue-200 transition">Usuários</a>
     </nav>
     <div class="flex items-center gap-4">
@@ -39,8 +39,10 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
               </svg>
             </div>
             <div>
-              <p class="text-xs text-blue-500 font-semibold">${usuario_role}</p>
-              <p class="text-blue-800 font-medium">${usuario_nome}</p>
+              <p class="text-xs text-blue-500 font-semibold">
+                ${usuarioLogado.role}
+              </p>
+              <p class="text-blue-800 font-medium">${usuarioLogado.nome}</p>
             </div>
           </div>
         </div>

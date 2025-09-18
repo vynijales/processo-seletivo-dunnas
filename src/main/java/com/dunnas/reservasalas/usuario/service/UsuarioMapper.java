@@ -9,8 +9,6 @@ import com.dunnas.reservasalas.usuario.model.Usuario;
 
 @Component
 public class UsuarioMapper {
-    private UsuarioMapper usuarioMapper;
-
     public Usuario toEntity(UsuarioRequest request) {
         return Usuario.builder()
                 .id(request.getId())
@@ -44,7 +42,7 @@ public class UsuarioMapper {
 
     public List<UsuarioResponse> toResponse(List<Usuario> usuarios) {
         return usuarios.stream()
-                .map(usuarioMapper::toResponse)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 }

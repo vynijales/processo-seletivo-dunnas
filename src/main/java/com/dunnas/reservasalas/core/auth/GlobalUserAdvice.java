@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import com.dunnas.reservasalas.core.utils.Capitalizar;
+import com.dunnas.reservasalas.usuario.service.UsuarioResponse;
 import com.dunnas.reservasalas.usuario.service.UsuarioService;
 
 @ControllerAdvice
@@ -23,26 +23,12 @@ public class GlobalUserAdvice {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             Object principal = auth.getPrincipal();
-            String nome, email, role;
 
             if (principal instanceof UserDetails) {
-                email = ((UserDetails) principal).getUsername();
-                nome = email.split("@")[0];
-                role = ((UserDetails) principal).getAuthorities().stream().findFirst().map(Object::toString)
-                        .orElse("VISITANTE");
-            } else {
-                email = principal.toString();
-                nome = principal.toString();
-                role = "VISITANTE";
+                String email = ((UserDetails) principal).getUsername();
+                UsuarioResponse usuario = usuarioService.getByEmail(email);
+                model.addAttribute("usuarioLogado", usuario);
             }
-
-            Long usuarioId = usuarioService.getByEmail(email).getId();
-
-            model.addAttribute("usuario_id", usuarioId);
-            model.addAttribute("usuario_email", email);
-            model.addAttribute("usuario_nome", Capitalizar.capitalizar(nome));
-            model.addAttribute("usuario_role", Capitalizar.capitalizar(role));
-
         }
     }
 }

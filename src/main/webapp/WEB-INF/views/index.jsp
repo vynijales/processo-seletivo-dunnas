@@ -14,9 +14,9 @@
       >Ver Salas</a
     >
     <a
-      href="/reservas"
+      href="/setores"
       class="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-      >Ver Reservas</a
+      >Ver Setores</a
     >
     <a
       href="/usuarios"

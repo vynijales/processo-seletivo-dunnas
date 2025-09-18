@@ -75,8 +75,9 @@ public class UsuarioService implements UserDetailsService {
     }
 
     @Nullable
-    public Usuario getByEmail(String email) {
-        return usuarioRepository.findByEmailIgnoreCase(email);
+    public UsuarioResponse getByEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email);
+        return usuarioMapper.toResponse(usuario);
     }
 
     @Transactional

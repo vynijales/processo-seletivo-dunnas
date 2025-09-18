@@ -59,7 +59,7 @@ public class UsuarioController extends HttpServlet {
         model.addAttribute("totalPages", usuarios.getTotalPages());
         model.addAttribute("totalItems", usuarios.getTotalElements());
 
-        model.addAttribute("contentPage", "features/usuario/lista.jsp");
+        model.addAttribute("contentPage", "features/usuario/lista-usuario.jsp");
         return "base";
     }
 
@@ -67,19 +67,17 @@ public class UsuarioController extends HttpServlet {
     public String detail(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
         model.addAttribute("usuario", usuario);
-        model.addAttribute("contentPage", "features/usuario/detalhes.jsp");
+        model.addAttribute("contentPage", "features/usuario/detalhes-usuario.jsp");
         return "base";
     }
 
     @GetMapping("/criar")
     public String createForm(Model model) {
         model.addAttribute("usuarioRequest", UsuarioRequest.builder().build());
-        model.addAttribute("contentPage", "features/usuario/form-criar.jsp");
+        model.addAttribute("contentPage", "features/usuario/form-usuario.jsp");
         return "base";
     }
 
-    // @PreAuthorize("hasAuthority('ADMINISTRADOR') or
-    // hasAuthority('RECEPCIONISTA')")
     @GetMapping("/{id}/editar")
     public String editForm(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
@@ -96,7 +94,7 @@ public class UsuarioController extends HttpServlet {
                 .role(usuario.getRole())
                 .build();
         model.addAttribute("usuarioRequest", request);
-        model.addAttribute("contentPage", "features/usuario/form-editar.jsp");
+        model.addAttribute("contentPage", "features/usuario/form-usuario.jsp");
 
         return "base";
     }
@@ -114,7 +112,7 @@ public class UsuarioController extends HttpServlet {
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
             model.addAttribute("errors", result.getAllErrors());
-            model.addAttribute("contentPage", "features/usuario/form-criar.jsp");
+            model.addAttribute("contentPage", "features/usuario/form-usuario.jsp");
             return "base";
         }
         try {
@@ -143,7 +141,7 @@ public class UsuarioController extends HttpServlet {
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
             model.addAttribute("errors", result.getAllErrors());
-            model.addAttribute("contentPage", "features/usuario/form-editar.jsp");
+            model.addAttribute("contentPage", "features/usuario/form-usuario.jsp");
             return "base";
         }
         try {

@@ -6,7 +6,9 @@
     <p><span class="font-semibold">Nome:</span> ${usuario.nome}</p>
     <p><span class="font-semibold">Email:</span> ${usuario.email}</p>
     <p><span class="font-semibold">Role:</span> ${usuario.role}</p>
-    <p><span class="font-semibold">Ativo:</span> ${usuario.ativo}</p>
+    <p>
+      <span class="font-semibold">Ativo:</span> ${usuario.ativo ? "Sim" : "Não"}
+    </p>
   </div>
   <div class="flex gap-3 mt-6">
     <a

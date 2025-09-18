@@ -27,14 +27,12 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
             </tr>
           </thead>
           <tbody>
-            <c:forEach var="usuario" items="${usuarios.content}">
+            <c:forEach var="u" items="${usuarios.content}">
               <tr class="border-b hover:bg-blue-50">
-                <td class="px-4 py-2">${usuario.id}</td>
-                <td class="px-4 py-2">${usuario.nome}</td>
-                <td class="px-4 py-2">${usuario.email}</td>
-                <td class="px-4 py-2">
-                  ${Capitalizar.capitalizar(usuario.role)}
-                </td>
+                <td class="px-4 py-2">${u.id}</td>
+                <td class="px-4 py-2">${u.nome}</td>
+                <td class="px-4 py-2">${u.email}</td>
+                <td class="px-4 py-2">${Capitalizar.capitalizar(u.role)}</td>
                 <td class="px-4 py-2 flex gap-2">
                   <jsp:include page="/WEB-INF/views/partials/button.jsp">
                     <jsp:param name="href" value="/usuarios/${usuario.id}" />
@@ -44,13 +42,10 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
                   </jsp:include>
 
                   <c:if
-                    test="${usuario.id == usuario_id || usuario_role == 'Administrador'}"
+                    test="${u.id == usuarioLogado.id || usuarioLogado.role == 'ADMINISTRADOR'}"
                   >
                     <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                      <jsp:param
-                        name="href"
-                        value="/usuarios/${usuario.id}/editar"
-                      />
+                      <jsp:param name="href" value="/usuarios/${u.id}/editar" />
                       <jsp:param name="text" value="Editar" />
                       <jsp:param name="color" value="yellow" />
                       <jsp:param name="class" value="px-3 py-1 text-sm" />
@@ -59,7 +54,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 
                   <!-- Se for o mesmo usuário, não exibir o botão de excluir  -->
                   <c:if
-                    test="${usuario.id != usuario_id && usuario_role == 'Administrador'}"
+                    test="${usuario.id != usuarioLogado.id && usuarioLogado.role == 'ADMINISTRADOR'}"
                   >
                     <jsp:include page="/WEB-INF/views/partials/button.jsp">
                       <jsp:param

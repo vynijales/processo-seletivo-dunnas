@@ -1,5 +1,7 @@
 package com.dunnas.reservasalas.usuario.controller;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.validation.Valid;
 
@@ -19,8 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dunnas.reservasalas.usuario.model.Usuario;
+import com.dunnas.reservasalas.usuario.model.UsuarioRole;
+import com.dunnas.reservasalas.usuario.service.UsuarioRequest;
 import com.dunnas.reservasalas.usuario.service.UsuarioService;
-import com.dunnas.reservasalas.usuario.utils.UsuarioRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +36,7 @@ public class UsuarioController extends HttpServlet {
     @GetMapping
     public String list(
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) List<UsuarioRole> role,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "nome") String sort,
@@ -79,6 +83,12 @@ public class UsuarioController extends HttpServlet {
     @GetMapping("/{id}/editar")
     public String editForm(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
+
+        if (usuario == null) {
+            model.addAttribute("errorMessage", "Usuário não encontrado.");
+            return "redirect:/usuarios";
+        }
+
         UsuarioRequest request = UsuarioRequest.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
@@ -97,7 +107,6 @@ public class UsuarioController extends HttpServlet {
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
-        // Validação manual da senha na criação
         if (usuarioRequest.getSenha() == null || usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
         }
@@ -139,7 +148,7 @@ public class UsuarioController extends HttpServlet {
         }
         try {
             usuarioRequest.setId(id); // Garante que o id está correto
-            Usuario savedUsuario = usuarioService.update(usuarioRequest);
+            Usuario savedUsuario = usuarioService.update(id, usuarioRequest);
             redirectAttributes.addFlashAttribute("successMessage", "Usuário atualizado com sucesso!");
             return "redirect:/usuarios/" + savedUsuario.getId();
         } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.dunnas.reservasalas.usuario.service;
 
+import java.util.List;
+
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.data.domain.Page;
@@ -13,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dunnas.reservasalas.core.exceptions.EmailDuplicadoException;
 import com.dunnas.reservasalas.usuario.model.Usuario;
+import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 import com.dunnas.reservasalas.usuario.repository.UsuarioRepository;
-import com.dunnas.reservasalas.usuario.utils.UsuarioMapper;
-import com.dunnas.reservasalas.usuario.utils.UsuarioRequest;
 
+import io.micrometer.common.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,19 +32,51 @@ public class UsuarioService implements UserDetailsService {
         return usuarioRepository.findAll(pageable);
     }
 
+    public Page<Usuario> list(Pageable pageable, String q, UsuarioRole role) {
+        return usuarioRepository.findByQueryAndRole(q, role, pageable);
+    }
+
+    public List<Usuario> list() {
+        return usuarioRepository.findAll();
+    }
+
+    public List<UsuarioResponse> list(UsuarioRole role) {
+        final List<Usuario> usuarios = usuarioRepository.findByRole(role);
+        return usuarioMapper.toResponse(usuarios);
+    }
+
+    public List<UsuarioResponse> list(String q, UsuarioRole role) {
+        final List<Usuario> usuarios = usuarioRepository.findByQueryAndRole(q, role);
+        return usuarioMapper.toResponse(usuarios);
+    }
+
+    public List<UsuarioResponse> list(String q, List<UsuarioRole> roles) {
+        final List<Usuario> usuarios = usuarioRepository.findByQueryAndRoles(q, roles);
+        return usuarioMapper.toResponse(usuarios);
+    }
+
+    public List<UsuarioResponse> list(List<UsuarioRole> roles) {
+        List<Usuario> usuarios = usuarioRepository.findByRoles(roles);
+        return usuarioMapper.toResponse(usuarios);
+    }
+
     public Page<Usuario> search(String query, Pageable pageable) {
         return usuarioRepository.findByQuery(query, pageable);
     }
 
-    public Usuario getById(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        return usuario;
+    public List<UsuarioResponse> search(String query) {
+        List<Usuario> usuarios = usuarioRepository.findByQuery(query);
+        return usuarioMapper.toResponse(usuarios);
     }
 
+    @Nullable
+    public Usuario getById(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
+    }
+
+    @Nullable
     public Usuario getByEmail(String email) {
-        return usuarioRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        return usuarioRepository.findByEmailIgnoreCase(email);
     }
 
     @Transactional
@@ -59,17 +93,22 @@ public class UsuarioService implements UserDetailsService {
     }
 
     @Transactional
-    public Usuario update(UsuarioRequest request) {
-        Usuario usuario = usuarioRepository.findById(request.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        Usuario atualizado = usuarioMapper.toEntity(request);
+    public Usuario update(Long id, UsuarioRequest request) {
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null) {
+            return null;
+        }
 
         String emailAtual = usuario.getEmail();
         String emailNovo = request.getEmail();
 
+        // Alterou o email? É duplicado?
         if (!emailAtual.equals(emailNovo) && usuarioRepository.existsByEmail(emailNovo)) {
             throw new EmailDuplicadoException();
         }
+
+        Usuario atualizado = usuarioMapper.toEntity(request);
 
         if (request.getSenha() != null && !request.getSenha().isBlank()) {
             atualizado.setSenha(passwordEncoder.encode(request.getSenha()));
@@ -83,6 +122,7 @@ public class UsuarioService implements UserDetailsService {
                 atualizado.getRole(),
                 atualizado.isAtivo());
         return atualizado;
+
     }
 
     @Transactional
@@ -94,8 +134,10 @@ public class UsuarioService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(username);
+        if (usuario == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado");
+        }
         return usuario;
     }
 }

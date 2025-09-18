@@ -1,5 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> 
-<script src="https://cdn.tailwindcss.com"></script>
 <div class="max-w-lg mx-auto bg-white rounded shadow-md p-8 mt-8">
   <h1 class="text-2xl font-bold text-blue-700 mb-6">Novo Usuário</h1>
   <c:if test="${not empty errorMessage}">

@@ -1,6 +1,6 @@
 package com.dunnas.reservasalas.usuario.repository;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,20 +12,52 @@ import org.springframework.data.repository.query.Param;
 import com.dunnas.reservasalas.usuario.model.Usuario;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 
+import io.micrometer.common.lang.Nullable;
+
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     boolean existsByEmail(String email);
 
     Page<Usuario> findByNomeLike(String nome, Pageable pageable);
 
+    List<Usuario> findByNomeLike(String nome);
+
     Page<Usuario> findByEmailIgnoreCase(String email, Pageable pageable);
 
-    Optional<Usuario> findByEmailIgnoreCase(String email);
+    @Nullable
+    Usuario findByEmailIgnoreCase(String email);
 
     Page<Usuario> findByNomeLikeAndEmailIgnoreCase(String nome, String email, Pageable pageable);
 
+    List<Usuario> findByNomeLikeAndEmailIgnoreCase(String nome, String email);
+
+    List<Usuario> findByRole(UsuarioRole role);
+
     @Query("SELECT u FROM Usuario u WHERE LOWER(u.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))")
     Page<Usuario> findByQuery(String q, Pageable pageable);
+
+    @Query("SELECT u FROM Usuario u WHERE u.role=:role AND (LOWER(u.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%')))")
+    Page<Usuario> findByQueryAndRole(String q, UsuarioRole role, Pageable pageable);
+
+    @Query("SELECT u FROM Usuario u WHERE LOWER(u.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))")
+    List<Usuario> findByQuery(String q);
+
+    @Query("SELECT u FROM Usuario u WHERE u.role=:role AND (LOWER(u.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%')))")
+    List<Usuario> findByQueryAndRole(String q, UsuarioRole role);
+
+    @Query("SELECT u FROM Usuario u WHERE u.role IN :roles AND " +
+            "(LOWER(u.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%')))")
+    Page<Usuario> findByQueryAndRoles(@Param("q") String q, @Param("roles") List<UsuarioRole> roles, Pageable pageable);
+
+    @Query("SELECT u FROM Usuario u WHERE u.role IN :roles AND " +
+            "(LOWER(u.nome) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%')))")
+    List<Usuario> findByQueryAndRoles(@Param("q") String q, @Param("roles") List<UsuarioRole> roles);
+
+    @Query("SELECT u FROM Usuario u WHERE u.role IN :roles")
+    Page<Usuario> findByRoles(@Param("roles") List<UsuarioRole> roles, Pageable pageable);
+
+    @Query("SELECT u FROM Usuario u WHERE u.role IN :roles")
+    List<Usuario> findByRoles(@Param("roles") List<UsuarioRole> roles);
 
     // Update all, less password
     @Modifying

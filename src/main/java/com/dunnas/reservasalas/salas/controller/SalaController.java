@@ -74,8 +74,6 @@ public class SalaController {
 
         if (sala == null) {
             model.addAttribute("errorMessage", "Sala não encontrada no nosso banco de dados");
-            model.addAttribute("contentPage", "features/sala/sala-listar.jsp");
-            return "redirect:/salas";
         }
 
         model.addAttribute("sala", sala);

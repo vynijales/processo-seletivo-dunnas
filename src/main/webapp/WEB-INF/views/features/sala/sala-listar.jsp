@@ -4,6 +4,12 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 
 <div class="container mx-auto px-4 py-8 space-y-4">
   <h1 class="text-2xl font-bold text-blue-700 mb-6">Salas</h1>
+  <c:if test="${not empty errorMessage}">
+    <jsp:include page="/WEB-INF/views/partials/alert.jsp">
+      <jsp:param name="message" value="${errorMessage}" />
+      <jsp:param name="type" value="error" />
+    </jsp:include>
+  </c:if>
   <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
     <jsp:include page="/WEB-INF/views/partials/button.jsp">
       <jsp:param name="href" value="/salas/criar" />

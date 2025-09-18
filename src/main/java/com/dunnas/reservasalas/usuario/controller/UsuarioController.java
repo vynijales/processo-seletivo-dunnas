@@ -69,8 +69,8 @@ public class UsuarioController extends HttpServlet {
 
         if (usuario == null) {
             model.addAttribute("errorMessage", "Usuário não encontrado no nosso banco de dados");
-            model.addAttribute("contentPage", "features/usuario/usuario-listar.jsp");
-            return "redirect:/usuarios";
+            // model.addAttribute("contentPage", "features/usuario/usuario-listar.jsp");
+            // return "redirect:/usuarios";
         }
 
         model.addAttribute("usuario", usuario);

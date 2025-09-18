@@ -16,7 +16,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
     </p>
   </div>
   <div class="flex gap-3 mt-6">
-    <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
+    <c:if test="${usuarioLogado.role == 'ADMINISTRADOR' && setor!= null}">
       <a
         href="/setores/${setor.id}/editar"
         class="px-4 py-2 rounded font-semibold bg-yellow-500 text-white hover:bg-yellow-600 transition focus:outline-none"

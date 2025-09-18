@@ -70,8 +70,6 @@ public class SetorController {
 
         if (setor == null) {
             model.addAttribute("errorMessage", "Setor não encontrado no nosso banco de dados");
-            model.addAttribute("contentPage", "features/setor/setor-listar.jsp");
-            return "redirect:/setores";
         }
 
         model.addAttribute("setor", setor);

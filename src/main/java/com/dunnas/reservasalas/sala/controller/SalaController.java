@@ -114,54 +114,70 @@ public class SalaController {
             return "redirect:/salas";
         }
 
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Setor> setores;
-        try {
-            UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
-            if (usuarioLogado != null) {
 
-                if (usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
-                    setores = setorService.list();
-
-                } else {
-                    final long usuarioId = usuarioLogado.getId();
-                    setores = (setorService.getAllByRecepcionistaId(usuarioId));
-                }
-            } else {
-                return "base";
-            }
-
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", e.toString());
-            return null;
+        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
+            setores = setorService.list();
+        } else if (usuarioLogado != null) {
+            setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
+        } else {
+            return "redirect:/login";
         }
 
+        SalaRequest salaRequest = SalaRequest.builder()
+                .id(sala.getId())
+                .nome(sala.getNome())
+                .capacidade(sala.getCapacidade())
+                .valorAluguel(sala.getValorAluguel())
+                .setorId(sala.getSetor() != null ? sala.getSetor().getId() : null)
+                .ativo(sala.getAtivo())
+                .build();
+
+        model.addAttribute("salaRequest", salaRequest);
         model.addAttribute("setores", setores);
-        model.addAttribute("sala", sala);
         model.addAttribute("contentPage", "features/sala/sala-form.jsp");
+
         return "base";
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
     public String create(
-            @Valid @ModelAttribute("sala") SalaRequest sala,
+            @Valid @ModelAttribute("salaRequest") SalaRequest salaRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
-        final String path = "features/sala/sala-form.jsp";
+
+        // Recarregar dados necessários para o formulário
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+        List<Setor> setores;
+
+        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
+            setores = setorService.list();
+        } else if (usuarioLogado != null) {
+            setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
+        } else {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("setores", setores);
 
         if (result.hasErrors()) {
-            model.addAttribute("errorMessage", result.getAllErrors());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("errorMessage", "Erros de validação encontrados");
+            model.addAttribute("errors", result.getAllErrors()); // Adiciona erros específicos
+            model.addAttribute("contentPage", "features/sala/sala-form.jsp");
             return "base";
         }
+
         try {
-            Sala savedSetor = salaService.create(sala);
-            redirectAttributes.addFlashAttribute("successMessage", "Setor criado com sucesso!");
-            return "redirect:/salas/" + savedSetor.getId();
+            Sala savedSala = salaService.create(salaRequest);
+            redirectAttributes.addFlashAttribute("successMessage", "Sala criada com sucesso!");
+            return "redirect:/salas/" + savedSala.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar sala: " + e.getMessage());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("salaRequest", salaRequest); // Mantém os dados preenchidos
+            model.addAttribute("contentPage", "features/sala/sala-form.jsp");
             return "base";
         }
     }
@@ -169,35 +185,51 @@ public class SalaController {
     @PostMapping("/{id}/editar")
     public String update(
             @PathVariable Long id,
-            @Valid @ModelAttribute("sala") SalaRequest sala,
+            @Valid @ModelAttribute("salaRequest") SalaRequest salaRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
-        final String path = "features/sala/sala-form.jsp";
+
+        // Recarregar dados necessários para o formulário
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+        List<Setor> setores;
+
+        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
+            setores = setorService.list();
+        } else if (usuarioLogado != null) {
+            setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
+        } else {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("setores", setores);
 
         if (result.hasErrors()) {
-            model.addAttribute("errorMessage", result.getAllErrors());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("errorMessage", "Erros de validação encontrados");
+            model.addAttribute("errors", result.getAllErrors());
+            model.addAttribute("contentPage", "features/sala/sala-form.jsp");
             return "base";
         }
+
         try {
-            Sala updatedSetor = salaService.update(id, sala);
-            if (updatedSetor == null) {
-                model.addAttribute("errorMessage", "Setor não encontrado.");
-                model.addAttribute("contentPage", path);
+            Sala updatedSala = salaService.update(id, salaRequest);
+            if (updatedSala == null) {
+                model.addAttribute("errorMessage", "Sala não encontrada.");
+                model.addAttribute("salaRequest", salaRequest);
+                model.addAttribute("contentPage", "features/sala/sala-form.jsp");
                 return "base";
             }
-            redirectAttributes.addFlashAttribute("successMessage", "Setor atualizado com sucesso!");
-            return "redirect:/salas/" + updatedSetor.getId();
+            redirectAttributes.addFlashAttribute("successMessage", "Sala atualizada com sucesso!");
+            return "redirect:/salas/" + updatedSala.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao atualizar sala: " + e.getMessage());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("salaRequest", salaRequest);
+            model.addAttribute("contentPage", "features/sala/sala-form.jsp");
             return "base";
         }
-
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR)")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}/excluir")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -207,6 +239,6 @@ public class SalaController {
             redirectAttributes.addFlashAttribute("errorMessage", "Erro ao excluir sala: " + e.getMessage());
         }
 
-        return "redirect:/setores";
+        return "redirect:/salas";
     }
 }

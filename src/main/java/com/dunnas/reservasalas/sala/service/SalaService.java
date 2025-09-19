@@ -2,6 +2,7 @@ package com.dunnas.reservasalas.sala.service;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -48,15 +49,15 @@ public class SalaService {
     @Transactional
     public Sala update(Long id, SalaRequest req) {
         Sala existingSala = salaRepository.findById(id)
-                .orElse(null);
+                .orElseThrow(() -> new EntityNotFoundException("Sala não encontrada"));
 
-        if (existingSala != null) {
-            Sala novoSala = salaMapper.toEntity(req);
+        // Atualiza os campos mantendo a mesma entidade
+        existingSala.setNome(req.getNome());
+        existingSala.setCapacidade(req.getCapacidade());
+        existingSala.setValorAluguel(req.getValorAluguel());
+        existingSala.setAtivo(req.getAtivo() != null ? req.getAtivo() : existingSala.getAtivo());
 
-            return salaRepository.save(novoSala);
-        }
-
-        return null;
+        return salaRepository.save(existingSala);
     }
 
     @Transactional

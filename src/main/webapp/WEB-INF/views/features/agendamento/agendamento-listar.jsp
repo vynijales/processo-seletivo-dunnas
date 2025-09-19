@@ -8,9 +8,9 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
 
   <div class="container p-4">
     <div class="page-header">
-      <h1 class="page-title">Solicitações</h1>
-      <a href="/solicitacoes/criar" class="btn btn-primary btn-new">
-        <i class="fas fa-plus"></i> Nova Solicitação
+      <h1 class="page-title">Agendamentos</h1>
+      <a href="/agendamentos/criar" class="btn btn-primary btn-new">
+        <i class="fas fa-plus"></i> Nova Agendamento
       </a>
     </div>
 
@@ -24,7 +24,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     <div class="data-table-container">
       <c:choose>
         <c:when
-          test="${not empty solicitacoes.content && !solicitacoes.content.isEmpty()}"
+          test="${not empty agendamentos.content && !agendamentos.content.isEmpty()}"
         >
           <table class="data-table">
             <thead>
@@ -39,7 +39,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
               </tr>
             </thead>
             <tbody>
-              <c:forEach var="s" items="${solicitacoes.content}">
+              <c:forEach var="s" items="${agendamentos.content}">
                 <tr>
                   <td>${s.id}</td>
                   <td>${Capitalizar.capitalizar(s.cliente.nome)}</td>
@@ -73,7 +73,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
                   <td>
                     <div class="action-buttons">
                       <a
-                        href="/solicitacoes/${s.id}"
+                        href="/agendamentos/${s.id}"
                         class="btn btn-primary btn-sm btn-action"
                       >
                         <i class="fas fa-eye"></i>
@@ -82,7 +82,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
 
                       <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
                         <a
-                          href="/solicitacoes/${s.id}/editar"
+                          href="/agendamentos/${s.id}/editar"
                           class="btn btn-warning btn-sm btn-action"
                         >
                           <i class="fas fa-edit"></i>
@@ -92,7 +92,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
 
                       <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
                         <a
-                          href="/solicitacoes/${s.id}/excluir"
+                          href="/agendamentos/${s.id}/excluir"
                           class="btn btn-error btn-sm btn-action"
                         >
                           <i class="fas fa-trash"></i>
@@ -111,9 +111,9 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
             <div class="empty-state-icon">
               <i class="fas fa-calendar-check"></i>
             </div>
-            <h3 class="empty-state-text">Nenhuma solicitação encontrada</h3>
-            <a href="/solicitacoes/criar" class="btn btn-primary btn-new">
-              <i class="fas fa-plus"></i> Criar Primeira Solicitação
+            <h3 class="empty-state-text">Nenhuma agendamento encontrada</h3>
+            <a href="/agendamentos/criar" class="btn btn-primary btn-new">
+              <i class="fas fa-plus"></i> Criar Primeira Agendamento
             </a>
           </div>
         </c:otherwise>
@@ -121,30 +121,30 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     </div>
 
     <c:if
-      test="${not empty solicitacoes.content && !solicitacoes.content.isEmpty() && (solicitacoes.totalPages > 1)}"
+      test="${not empty agendamentos.content && !agendamentos.content.isEmpty() && (agendamentos.totalPages > 1)}"
     >
       <div class="pagination">
-        <c:if test="${solicitacoes.hasPrevious()}">
+        <c:if test="${agendamentos.hasPrevious()}">
           <a
-            href="/solicitacoes?page=${solicitacoes.number - 1}"
+            href="/agendamentos?page=${agendamentos.number - 1}"
             class="pagination-item"
           >
             <i class="fas fa-chevron-left"></i>
           </a>
         </c:if>
 
-        <c:forEach begin="0" end="${solicitacoes.totalPages - 1}" var="i">
+        <c:forEach begin="0" end="${agendamentos.totalPages - 1}" var="i">
           <a
-            href="/solicitacoes?page=${i}"
-            class="pagination-item ${i == solicitacoes.number ? 'active' : ''}"
+            href="/agendamentos?page=${i}"
+            class="pagination-item ${i == agendamentos.number ? 'active' : ''}"
           >
             ${i + 1}
           </a>
         </c:forEach>
 
-        <c:if test="${solicitacoes.hasNext()}">
+        <c:if test="${agendamentos.hasNext()}">
           <a
-            href="/solicitacoes?page=${solicitacoes.number + 1}"
+            href="/agendamentos?page=${agendamentos.number + 1}"
             class="pagination-item"
           >
             <i class="fas fa-chevron-right"></i>

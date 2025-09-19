@@ -20,12 +20,19 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 
     <!-- Navegação Principal -->
     <nav class="main-nav hidden md:flex items-center gap-1">
-      <a
+      <!-- <a
         href="/"
         class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
       >
         <i class="fas fa-home text-sm"></i>
         Início
+      </a> -->
+      <a
+        href="/agendamentos"
+        class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
+      >
+        <i class="fas fa-calendar-alt text-sm"></i>
+        Agendamentos
       </a>
       <a
         href="/solicitacoes"
@@ -157,12 +164,19 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
   <!-- Menu Mobile (Expandido) -->
   <div id="mobile-menu" class="hidden mobile-menu px-6 py-4">
     <div class="flex flex-col gap-3">
-      <a
+      <!-- <a
         href="/"
         class="mobile-nav-link py-2 px-4 rounded-lg transition-all flex items-center gap-3"
       >
         <i class="fas fa-home"></i>
         Início
+      </a> -->
+      <a
+        href="/solicitacoes"
+        class="mobile-nav-link py-2 px-4 rounded-lg transition-all flex items-center gap-3"
+      >
+        <i class="fas fa-calendar-alt"></i>
+        Agendamentos
       </a>
       <a
         href="/solicitacoes"

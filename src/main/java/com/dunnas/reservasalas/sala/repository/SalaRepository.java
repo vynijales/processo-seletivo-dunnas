@@ -14,6 +14,8 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
 
     Page<Sala> findByNomeLike(String nome, Pageable pageable);
 
+    Sala findByNome(String nome);
+
     List<Sala> findByNomeLike(String nome);
 
 }

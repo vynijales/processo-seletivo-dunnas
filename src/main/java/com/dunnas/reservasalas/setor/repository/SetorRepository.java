@@ -14,6 +14,8 @@ public interface SetorRepository extends JpaRepository<Setor, Long> {
 
     Page<Setor> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
+    Setor findByNome(String nome);
+
     List<Setor> findByNomeContainingIgnoreCase(String nome);
 
     List<Setor> findAllByRecepcionistaId(Long recepcionistaId);

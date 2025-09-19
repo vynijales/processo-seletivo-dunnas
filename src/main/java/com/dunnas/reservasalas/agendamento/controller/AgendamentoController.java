@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.solicitacao.controller;
+package com.dunnas.reservasalas.agendamento.controller;
 
 import java.util.List;
 
@@ -21,13 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.dunnas.reservasalas.agendamento.model.Agendamento;
+import com.dunnas.reservasalas.agendamento.service.AgendamentoRequest;
+import com.dunnas.reservasalas.agendamento.service.AgendamentoService;
 import com.dunnas.reservasalas.core.auth.AuthenticationController;
 import com.dunnas.reservasalas.sala.model.Sala;
 import com.dunnas.reservasalas.sala.repository.SalaRepository;
-import com.dunnas.reservasalas.solicitacao.model.Solicitacao;
-import com.dunnas.reservasalas.solicitacao.service.SolicitacaoRequest;
-import com.dunnas.reservasalas.solicitacao.service.SolicitacaoService;
-import com.dunnas.reservasalas.solicitacao.utils.SolicitacaoValidator;
 import com.dunnas.reservasalas.usuario.model.Usuario;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 import com.dunnas.reservasalas.usuario.repository.UsuarioRepository;
@@ -38,11 +37,10 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/solicitacoes")
-public class SolicitacaoController {
+@RequestMapping("/agendamentos")
+public class AgendamentoController {
     private final AuthenticationController autenticationController;
-    private final SolicitacaoService solicitacaoService;
-    private final SolicitacaoValidator solicitacaoValidator;
+    private final AgendamentoService agendamentoService;
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final SalaRepository salaRepository;
@@ -56,36 +54,36 @@ public class SolicitacaoController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<Solicitacao> solicitacoes;
+        Page<Agendamento> agendamentos;
 
         if (q != null && !q.trim().isEmpty()) {
-            solicitacoes = solicitacaoService.search(q.trim(), pageable);
+            agendamentos = agendamentoService.search(q.trim(), pageable);
             model.addAttribute("query", q);
         } else {
-            solicitacoes = solicitacaoService.list(pageable);
+            agendamentos = agendamentoService.list(pageable);
         }
 
-        model.addAttribute("solicitacoes", solicitacoes);
+        model.addAttribute("agendamentos", agendamentos);
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size);
         model.addAttribute("sortField", sort);
-        model.addAttribute("totalPages", solicitacoes.getTotalPages());
-        model.addAttribute("totalItems", solicitacoes.getTotalElements());
+        model.addAttribute("totalPages", agendamentos.getTotalPages());
+        model.addAttribute("totalItems", agendamentos.getTotalElements());
 
-        model.addAttribute("contentPage", "features/solicitacao/solicitacao-listar.jsp");
+        model.addAttribute("contentPage", "features/agendamento/agendamento-listar.jsp");
         return "base";
     }
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        Solicitacao solicitacao = solicitacaoService.getById(id);
+        Agendamento agendamento = agendamentoService.getById(id);
 
-        if (solicitacao == null) {
-            model.addAttribute("errorMessage", "Solicitacao não encontrada no nosso banco de dados");
+        if (agendamento == null) {
+            model.addAttribute("errorMessage", "Agendamento não encontrada no nosso banco de dados");
         }
 
-        model.addAttribute("solicitacao", solicitacao);
-        model.addAttribute("contentPage", "features/solicitacao/solicitacao-detalhes.jsp");
+        model.addAttribute("agendamento", agendamento);
+        model.addAttribute("contentPage", "features/agendamento/agendamento-detalhes.jsp");
         return "base";
     }
 
@@ -104,18 +102,18 @@ public class SolicitacaoController {
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
-        model.addAttribute("solicitacoesRequest", SolicitacaoRequest.builder().build());
-        model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
+        model.addAttribute("agendamentosRequest", AgendamentoRequest.builder().build());
+        model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
         return "base";
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}/editar")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Solicitacao solicitacao = solicitacaoService.getById(id);
-        if (solicitacao == null) {
+        Agendamento agendamento = agendamentoService.getById(id);
+        if (agendamento == null) {
             throw new EntityNotFoundException();
-            // return "redirect:/solicitacoes/${id}";
+            // return "redirect:/agendamentos/${id}";
         }
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Usuario> clientes = usuarioRepository.findAll();
@@ -128,24 +126,21 @@ public class SolicitacaoController {
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
-        model.addAttribute("solicitacao", solicitacao);
-        model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
+        model.addAttribute("agendamento", agendamento);
+        model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
         return "base";
     }
 
     @PostMapping
     public String create(
-            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest, // Alterado para
-                                                                                                // solicitacaoRequest
+            @Valid @ModelAttribute("agendamentoRequest") AgendamentoRequest agendamentoRequest, // Alterado para
+                                                                                                // agendamentoRequest
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
 
         // Recarregar dados necessários para o formulário
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
-
-        solicitacaoValidator.validate(solicitacaoRequest, result);
-
         List<Usuario> clientes = usuarioRepository.findAll();
         List<Sala> salas = salaRepository.findAll();
 
@@ -159,18 +154,18 @@ public class SolicitacaoController {
         if (result.hasErrors()) {
             model.addAttribute("errorMessage", "Erros de validação encontrados");
             model.addAttribute("errors", result.getAllErrors());
-            model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
+            model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
             return "base";
         }
 
         try {
-            Solicitacao savedSolicitacao = solicitacaoService.create(solicitacaoRequest);
-            redirectAttributes.addFlashAttribute("successMessage", "Solicitação criada com sucesso!");
-            return "redirect:/solicitacoes/" + savedSolicitacao.getId();
+            Agendamento savedAgendamento = agendamentoService.create(agendamentoRequest);
+            redirectAttributes.addFlashAttribute("successMessage", "Agendamento criado com sucesso!");
+            return "redirect:/agendamentos/" + savedAgendamento.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar solicitação: " + e.getMessage());
-            model.addAttribute("solicitacaoRequest", solicitacaoRequest); // Mantém os dados preenchidos
-            model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
+            model.addAttribute("agendamentoRequest", agendamentoRequest); // Mantém os dados preenchidos
+            model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
             return "base";
         }
     }
@@ -178,8 +173,8 @@ public class SolicitacaoController {
     @PostMapping("/{id}/editar")
     public String update(
             @PathVariable Long id,
-            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest, // Alterado para
-                                                                                                // solicitacaoRequest
+            @Valid @ModelAttribute("agendamentoRequest") AgendamentoRequest agendamentoRequest, // Alterado para
+                                                                                                // agendamentoRequest
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
@@ -199,18 +194,18 @@ public class SolicitacaoController {
         if (result.hasErrors()) {
             model.addAttribute("errorMessage", "Erros de validação encontrados");
             model.addAttribute("errors", result.getAllErrors());
-            model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
+            model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
             return "base";
         }
 
         try {
-            Solicitacao savedSolicitacao = solicitacaoService.update(id, solicitacaoRequest);
-            redirectAttributes.addFlashAttribute("successMessage", "Solicitação atualizada com sucesso!");
-            return "redirect:/solicitacoes/" + savedSolicitacao.getId();
+            Agendamento savedAgendamento = agendamentoService.update(id, agendamentoRequest);
+            redirectAttributes.addFlashAttribute("successMessage", "Agendamento atualizado com sucesso!");
+            return "redirect:/agendamentos/" + savedAgendamento.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao atualizar solicitação: " + e.getMessage());
-            model.addAttribute("solicitacaoRequest", solicitacaoRequest);
-            model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
+            model.addAttribute("agendamentoRequest", agendamentoRequest);
+            model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
             return "base";
         }
     }
@@ -219,11 +214,11 @@ public class SolicitacaoController {
     @GetMapping("/{id}/excluir")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            solicitacaoService.delete(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Solicitação excluída com sucesso!");
+            agendamentoService.delete(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Agendamento excluído com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erro ao excluir solicitação: " + e.getMessage());
         }
-        return "redirect:/solicitacoes";
+        return "redirect:/agendamentos";
     }
 }

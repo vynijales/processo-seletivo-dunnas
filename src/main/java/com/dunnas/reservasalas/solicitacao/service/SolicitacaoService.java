@@ -62,7 +62,11 @@ public class SolicitacaoService {
 
     @Transactional
     public Solicitacao create(SolicitacaoRequest req) {
-        // Check for scheduling conflicts
+        if (req.getDataFim().isBefore(req.getDataInicio())) {
+            throw new IllegalArgumentException("A data final deve ser posterior à data inicial");
+        }
+
+        // TODO: REMOVER VALIDAÇÃO
         if (existsConflitoAgendamento(req.getSalaId(), req.getDataInicio(), req.getDataFim())) {
             throw new IllegalStateException("Já existe um agendamento para esta sala no período solicitado");
         }

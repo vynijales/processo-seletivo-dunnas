@@ -1,8 +1,8 @@
-package com.dunnas.reservasalas.setores.service;
+package com.dunnas.reservasalas.setor.service;
 
 import org.springframework.stereotype.Component;
 
-import com.dunnas.reservasalas.setores.model.Setor;
+import com.dunnas.reservasalas.setor.model.Setor;
 import com.dunnas.reservasalas.usuario.model.Usuario;
 
 @Component

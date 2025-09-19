@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.setores.service;
+package com.dunnas.reservasalas.setor.service;
 
 import lombok.Builder;
 import lombok.Data;

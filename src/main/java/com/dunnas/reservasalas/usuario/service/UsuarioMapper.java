@@ -20,6 +20,16 @@ public class UsuarioMapper {
                 .build();
     }
 
+    public Usuario toEntity(UsuarioResponse request) {
+        return Usuario.builder()
+                .id(request.getId())
+                .nome(request.getNome())
+                .email(request.getEmail())
+                .role(request.getRole())
+                .ativo(request.isAtivo())
+                .build();
+    }
+
     public UsuarioResponse toResponse(Usuario usuario) {
         return UsuarioResponse.builder()
                 .id(usuario.getId())

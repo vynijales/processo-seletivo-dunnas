@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.setores.service;
+package com.dunnas.reservasalas.setor.service;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.dunnas.reservasalas.setores.model.Setor;
-import com.dunnas.reservasalas.setores.repository.SetorRepository;
+import com.dunnas.reservasalas.setor.model.Setor;
+import com.dunnas.reservasalas.setor.repository.SetorRepository;
 
 import lombok.RequiredArgsConstructor;
 

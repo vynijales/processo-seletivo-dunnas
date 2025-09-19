@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.salas.controller;
+package com.dunnas.reservasalas.sala.controller;
 
 import java.util.List;
 
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dunnas.reservasalas.core.auth.AuthenticationController;
-import com.dunnas.reservasalas.salas.model.Sala;
-import com.dunnas.reservasalas.salas.service.SalaRequest;
-import com.dunnas.reservasalas.salas.service.SalaService;
-import com.dunnas.reservasalas.setores.model.Setor;
-import com.dunnas.reservasalas.setores.service.SetorService;
+import com.dunnas.reservasalas.sala.model.Sala;
+import com.dunnas.reservasalas.sala.service.SalaRequest;
+import com.dunnas.reservasalas.sala.service.SalaService;
+import com.dunnas.reservasalas.setor.model.Setor;
+import com.dunnas.reservasalas.setor.service.SetorService;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 import com.dunnas.reservasalas.usuario.service.UsuarioResponse;
 
@@ -164,6 +164,37 @@ public class SalaController {
             model.addAttribute("contentPage", path);
             return "base";
         }
+    }
+
+    @PostMapping("/{id}/editar")
+    public String update(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("sala") SalaRequest sala,
+            BindingResult result,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+        final String path = "features/sala/sala-form.jsp";
+
+        if (result.hasErrors()) {
+            model.addAttribute("errorMessage", result.getAllErrors());
+            model.addAttribute("contentPage", path);
+            return "base";
+        }
+        try {
+            Sala updatedSetor = salaService.update(id, sala);
+            if (updatedSetor == null) {
+                model.addAttribute("errorMessage", "Setor não encontrado.");
+                model.addAttribute("contentPage", path);
+                return "base";
+            }
+            redirectAttributes.addFlashAttribute("successMessage", "Setor atualizado com sucesso!");
+            return "redirect:/salas/" + updatedSetor.getId();
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erro ao atualizar sala: " + e.getMessage());
+            model.addAttribute("contentPage", path);
+            return "base";
+        }
+
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR)")

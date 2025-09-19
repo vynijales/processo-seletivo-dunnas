@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.salas.model;
+package com.dunnas.reservasalas.sala.model;
 
 import java.math.BigDecimal;
 
@@ -19,7 +19,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import com.dunnas.reservasalas.core.model.BaseEntity;
-import com.dunnas.reservasalas.setores.model.Setor;
+import com.dunnas.reservasalas.setor.model.Setor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,9 +1,9 @@
-package com.dunnas.reservasalas.salas.service;
+package com.dunnas.reservasalas.sala.service;
 
 import org.springframework.stereotype.Component;
 
-import com.dunnas.reservasalas.salas.model.Sala;
-import com.dunnas.reservasalas.setores.model.Setor;
+import com.dunnas.reservasalas.sala.model.Sala;
+import com.dunnas.reservasalas.setor.model.Setor;
 
 @Component
 public class SalaMapper {

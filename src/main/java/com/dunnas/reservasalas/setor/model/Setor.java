@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.setores.model;
+package com.dunnas.reservasalas.setor.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

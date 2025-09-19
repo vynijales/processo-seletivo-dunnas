@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.salas.repository;
+package com.dunnas.reservasalas.sala.repository;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.dunnas.reservasalas.salas.model.Sala;
+import com.dunnas.reservasalas.sala.model.Sala;
 
 public interface SalaRepository extends JpaRepository<Sala, Long> {
 

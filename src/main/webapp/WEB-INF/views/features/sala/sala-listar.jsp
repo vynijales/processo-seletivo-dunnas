@@ -1,77 +1,127 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ taglib
 prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> <%@ page
 import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
+<link href="static/css/main.css" rel="stylesheet" />
+<link href="static/css/datalist.css" rel="stylesheet" />
 
-<div class="container mx-auto px-4 py-8 space-y-4">
-  <h1 class="text-2xl font-bold text-blue-700 mb-6">Salas</h1>
+<div class="container p-4">
+  <div class="page-header">
+    <h1 class="page-title">Salas</h1>
+    <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
+      <a href="/salas/criar" class="btn btn-primary btn-new">
+        <i class="fas fa-plus"></i> Nova Sala
+      </a>
+    </c:if>
+  </div>
+
   <c:if test="${not empty errorMessage}">
     <jsp:include page="/WEB-INF/views/partials/alert.jsp">
       <jsp:param name="message" value="${errorMessage}" />
       <jsp:param name="type" value="error" />
     </jsp:include>
   </c:if>
-  <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
-    <jsp:include page="/WEB-INF/views/partials/button.jsp">
-      <jsp:param name="href" value="/salas/criar" />
-      <jsp:param name="text" value="Nova sala" />
-      <jsp:param name="color" value="blue" />
-      <jsp:param name="class" value="mb-4" />
-    </jsp:include>
-  </c:if>
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white rounded shadow-md">
-      <thead>
-        <tr class="bg-blue-100 text-blue-700">
-          <th class="px-4 py-2 text-left">ID</th>
-          <th class="px-4 py-2 text-left">Nome</th>
-          <th class="px-4 py-2 text-left">Capacidade</th>
-          <th class="px-4 py-2 text-left">Alguel (R$)</th>
 
-          <th class="px-4 py-2 text-left">Setor</th>
-          <th class="px-4 py-2 text-left">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <c:forEach var="s" items="${salas.content}">
-          <tr class="border-b hover:bg-blue-50">
-            <td class="px-4 py-2">${s.id}</td>
-            <td class="px-4 py-2">${s.nome}</td>
-            <td class="px-4 py-2">${s.capacidade}</td>
-            <td class="px-4 py-2">${s.valorAluguel}</td>
+  <div class="data-table-container">
+    <c:choose>
+      <c:when test="${not empty salas.content && !salas.content.isEmpty()}">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Capacidade</th>
+              <th>Aluguel (R$)</th>
+              <th>Setor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <c:forEach var="s" items="${salas.content}">
+              <tr>
+                <td>${s.id}</td>
+                <td>${s.nome}</td>
+                <td>${s.capacidade}</td>
+                <td>${s.valorAluguel}</td>
+                <td>
+                  ${s.setor != null ? Capitalizar.capitalizar(s.setor.nome) :
+                  'N/A'}
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <a
+                      href="/salas/${s.id}"
+                      class="btn btn-primary btn-sm btn-action"
+                    >
+                      <i class="fas fa-eye"></i>
+                      <span>Ver</span>
+                    </a>
 
-            <td class="px-4 py-2">
-              ${s.setor != null ? Capitalizar.capitalizar(s.setor.nome) : 'N/A'}
-            </td>
-            <td class="px-4 py-2 flex gap-2">
-              <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                <jsp:param name="href" value="/salas/${s.id}" />
-                <jsp:param name="text" value="Ver" />
-                <jsp:param name="color" value="blue" />
-                <jsp:param name="class" value="px-3 py-1 text-sm" />
-              </jsp:include>
+                    <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
+                      <a
+                        href="/salas/${s.id}/editar"
+                        class="btn btn-warning btn-sm btn-action"
+                      >
+                        <i class="fas fa-edit"></i>
+                        <span>Editar</span>
+                      </a>
+                    </c:if>
 
-              <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
-                <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                  <jsp:param name="href" value="/salas/${s.id}/editar" />
-                  <jsp:param name="text" value="Editar" />
-                  <jsp:param name="color" value="yellow" />
-                  <jsp:param name="class" value="px-3 py-1 text-sm" />
-                </jsp:include>
-              </c:if>
-
-              <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
-                <jsp:include page="/WEB-INF/views/partials/button.jsp">
-                  <jsp:param name="href" value="/salas/${s.id}/excluir" />
-                  <jsp:param name="text" value="Excluir" />
-                  <jsp:param name="color" value="red" />
-                  <jsp:param name="class" value="px-3 py-1 text-sm" />
-                  <jsp:param name="alt" value="Excluir setor" />
-                </jsp:include>
-              </c:if>
-            </td>
-          </tr>
-        </c:forEach>
-      </tbody>
-    </table>
+                    <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
+                      <a
+                        href="/salas/${s.id}/excluir"
+                        class="btn btn-error btn-sm btn-action"
+                      >
+                        <i class="fas fa-trash"></i>
+                        <span>Excluir</span>
+                      </a>
+                    </c:if>
+                  </div>
+                </td>
+              </tr>
+            </c:forEach>
+          </tbody>
+        </table>
+      </c:when>
+      <c:otherwise>
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="fas fa-door-open"></i>
+          </div>
+          <h3 class="empty-state-text">Nenhuma sala encontrada</h3>
+          <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
+            <a href="/salas/criar" class="btn btn-primary btn-new">
+              <i class="fas fa-plus"></i> Criar Primeira Sala
+            </a>
+          </c:if>
+        </div>
+      </c:otherwise>
+    </c:choose>
   </div>
+
+  <c:if
+    test="${not empty salas.content && !salas.content.isEmpty() && (salas.totalPages > 1)}"
+  >
+    <div class="pagination">
+      <c:if test="${salas.hasPrevious()}">
+        <a href="/salas?page=${salas.number - 1}" class="pagination-item">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+      </c:if>
+
+      <c:forEach begin="0" end="${salas.totalPages - 1}" var="i">
+        <a
+          href="/salas?page=${i}"
+          class="pagination-item ${i == salas.number ? 'active' : ''}"
+        >
+          ${i + 1}
+        </a>
+      </c:forEach>
+
+      <c:if test="${salas.hasNext()}">
+        <a href="/salas?page=${salas.number + 1}" class="pagination-item">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </c:if>
+    </div>
+  </c:if>
 </div>

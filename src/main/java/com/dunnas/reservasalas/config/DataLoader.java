@@ -8,10 +8,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.dunnas.reservasalas.core.exceptions.EntityRequiredException;
-import com.dunnas.reservasalas.salas.model.Sala;
-import com.dunnas.reservasalas.salas.repository.SalaRepository;
-import com.dunnas.reservasalas.setores.model.Setor;
-import com.dunnas.reservasalas.setores.repository.SetorRepository;
+import com.dunnas.reservasalas.sala.model.Sala;
+import com.dunnas.reservasalas.sala.repository.SalaRepository;
+import com.dunnas.reservasalas.setor.model.Setor;
+import com.dunnas.reservasalas.setor.repository.SetorRepository;
 import com.dunnas.reservasalas.usuario.model.Usuario;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 import com.dunnas.reservasalas.usuario.repository.UsuarioRepository;

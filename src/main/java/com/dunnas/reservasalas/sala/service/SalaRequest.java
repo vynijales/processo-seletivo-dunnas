@@ -1,4 +1,4 @@
-package com.dunnas.reservasalas.salas.service;
+package com.dunnas.reservasalas.sala.service;
 
 import java.math.BigDecimal;
 

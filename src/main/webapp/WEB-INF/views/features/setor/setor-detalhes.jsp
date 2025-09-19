@@ -21,7 +21,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     </jsp:include>
   </c:if>
 
-  <div class="user-profile-card">
+  <div class="user-profile-card space-y-4">
     <div class="user-profile-header">
       <div class="user-avatar">
         <i class="fas fa-building"></i>
@@ -59,6 +59,17 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
           ${setor.ativo ? "Ativo" : "Inativo"}
         </span>
       </div>
+    </div>
+
+    <div class="user-actions">
+      <a
+        href="/salas?setorId=${setor.id}"
+        alt="Verificar salas"
+        class="btn btn-primary btn-action"
+      >
+        <i class="fas fa-door-open text-sm"></i>
+        Salas
+      </a>
     </div>
 
     <c:if test="${usuarioLogado.role == 'ADMINISTRADOR' && setor != null}">

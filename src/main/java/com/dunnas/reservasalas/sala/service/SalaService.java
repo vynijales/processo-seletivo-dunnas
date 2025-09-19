@@ -32,6 +32,14 @@ public class SalaService {
         return salaRepository.findByNomeLike(query, pageable);
     }
 
+    public Page<Sala> getByQueryAndSetorId(String query, int setorId, Pageable pageable) {
+        return salaRepository.findByNomeLikeAndSetorId(query, setorId, pageable);
+    }
+
+    public Page<Sala> getBySetorId(int setorId, Pageable pageable) {
+        return salaRepository.findBySetorId(setorId, pageable);
+    }
+
     public List<Sala> search(String query) {
         return salaRepository.findByNomeLike(query);
     }

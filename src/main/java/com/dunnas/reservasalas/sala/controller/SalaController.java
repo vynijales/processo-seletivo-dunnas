@@ -45,16 +45,28 @@ public class SalaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "nome") String sort,
+            @RequestParam(required = false) Integer setorId,
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Sala> salas;
 
         if (q != null && !q.trim().isEmpty()) {
-            salas = salaService.search(q.trim(), pageable);
+
             model.addAttribute("query", q);
+
+            if (setorId != null) {
+                salas = salaService.getByQueryAndSetorId(q.trim(), setorId, pageable);
+            }
+            salas = salaService.search(q.trim(), pageable);
+
         } else {
-            salas = salaService.list(pageable);
+            if (setorId != null) {
+                salas = salaService.getBySetorId(setorId, pageable);
+            } else {
+                salas = salaService.list(pageable);
+
+            }
         }
 
         model.addAttribute("salas", salas);

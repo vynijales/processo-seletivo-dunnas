@@ -4,7 +4,7 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
 <link href="static/css/main.css" rel="stylesheet" />
 <link href="static/css/datalist.css" rel="stylesheet" />
 
-<div class="container p-4">
+<div class="container space-y-4 p-4">
   <div class="page-header">
     <h1 class="page-title">Setores</h1>
     <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">

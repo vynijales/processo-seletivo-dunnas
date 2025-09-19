@@ -6,9 +6,9 @@
 <link href="/static/css/main.css" rel="stylesheet" />
 <link href="/static/css/form.css" rel="stylesheet" />
 
-<c:set var="isEdicao" value="${not empty solicitacao and not empty solicitacao.id}" />
-<c:set var="titulo" value="${isEdicao ? 'Editar Solicitação' : 'Nova Solicitação'}" />
-<c:set var="actionUrl" value="${isEdicao ? '/solicitacoes/' += solicitacao.id += '/editar' : '/solicitacoes'}" />
+<c:set var="isEdicao" value="${not empty agendamento and not empty agendamento.id}" />
+<c:set var="titulo" value="${isEdicao ? 'Editar Agendamento' : 'Novo Agendamento'}" />
+<c:set var="actionUrl" value="${isEdicao ? '/agendamentos/' += agendamento.id += '/editar' : '/agendamentos'}" />
 <c:set var="textoBotao" value="${isEdicao ? 'Salvar' : 'Criar'}" />
 
 <div class="max-w-lg mx-auto bg-white rounded shadow-md p-8 mt-8">
@@ -33,7 +33,7 @@
   </c:if>
   
   <form class="space-y-4" action="${actionUrl}" method="post">
-    <input type="hidden" name="id" value="${not empty solicitacao.id ? solicitacao.id : ''}" />
+    <input type="hidden" name="id" value="${not empty agendamento.id ? agendamento.id : ''}" />
     
     <div class="flex flex-col gap-2">
       <div>
@@ -44,8 +44,8 @@
           <c:forEach var="c" items="${clientes}">
             <option value="${c.id}" 
               <c:choose>
-                <c:when test="${not empty solicitacao.cliente and solicitacao.cliente.id eq c.id}">selected</c:when>
-                <c:when test="${not empty solicitacaoRequest.clienteId and solicitacaoRequest.clienteId eq c.id}">selected</c:when>
+                <c:when test="${not empty agendamento.cliente and agendamento.cliente.id eq c.id}">selected</c:when>
+                <c:when test="${not empty agendamentoRequest.clienteId and agendamentoRequest.clienteId eq c.id}">selected</c:when>
               </c:choose>>
               ${c.id} - ${c.nome}
             </option>
@@ -61,8 +61,8 @@
           <c:forEach var="s" items="${salas}">
             <option value="${s.id}" 
               <c:choose>
-                <c:when test="${not empty solicitacao.sala and solicitacao.sala.id eq s.id}">selected</c:when>
-                <c:when test="${not empty solicitacaoRequest.salaId and solicitacaoRequest.salaId eq s.id}">selected</c:when>
+                <c:when test="${not empty agendamento.sala and agendamento.sala.id eq s.id}">selected</c:when>
+                <c:when test="${not empty agendamentoRequest.salaId and agendamentoRequest.salaId eq s.id}">selected</c:when>
               </c:choose>>
               ${s.id} - ${s.nome}
             </option>
@@ -75,19 +75,19 @@
         <select class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50" 
                 id="status" name="status" ${usuarioLogado.role == 'CLIENTE' ? 'disabled' : ''}>
           <option value="SOLICITADO" 
-            <c:if test="${(not empty solicitacao.status and solicitacao.status == 'SOLICITADO') or (not empty solicitacaoRequest.status and solicitacaoRequest.status == 'SOLICITADO')}">selected</c:if>>
+            <c:if test="${(not empty agendamento.status and agendamento.status == 'SOLICITADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'SOLICITADO')}">selected</c:if>>
             Solicitado
           </option>
           <option value="CONFIRMADO" 
-            <c:if test="${(not empty solicitacao.status and solicitacao.status == 'CONFIRMADO') or (not empty solicitacaoRequest.status and solicitacaoRequest.status == 'CONFIRMADO')}">selected</c:if>>
+            <c:if test="${(not empty agendamento.status and agendamento.status == 'CONFIRMADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'CONFIRMADO')}">selected</c:if>>
             Confirmado
           </option>
           <option value="CANCELADO" 
-            <c:if test="${(not empty solicitacao.status and solicitacao.status == 'CANCELADO') or (not empty solicitacaoRequest.status and solicitacaoRequest.status == 'CANCELADO')}">selected</c:if>>
+            <c:if test="${(not empty agendamento.status and agendamento.status == 'CANCELADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'CANCELADO')}">selected</c:if>>
             Cancelado
           </option>
           <option value="FINALIZADO" 
-            <c:if test="${(not empty solicitacao.status and solicitacao.status == 'FINALIZADO') or (not empty solicitacaoRequest.status and solicitacaoRequest.status == 'FINALIZADO')}">selected</c:if>>
+            <c:if test="${(not empty agendamento.status and agendamento.status == 'FINALIZADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'FINALIZADO')}">selected</c:if>>
             Finalizado
           </option>
         </select>
@@ -97,13 +97,13 @@
         <div class="w-full">
           <label for="dataInicio" class="block font-semibold mb-1">Data inicial:</label>
           <input type="datetime-local" id="dataInicio" name="dataInicio"
-                 value="${not empty solicitacao.dataInicio ? solicitacao.dataInicio : solicitacaoRequest.dataInicio}"
+                 value="${not empty agendamento.dataInicio ? agendamento.dataInicio : agendamentoRequest.dataInicio}"
                  class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
         </div>
         <div class="w-full">
           <label for="dataFim" class="block font-semibold mb-1">Data final:</label>
           <input type="datetime-local" id="dataFim" name="dataFim"
-                 value="${not empty solicitacao.dataFim ? solicitacao.dataFim : solicitacaoRequest.dataFim}"
+                 value="${not empty agendamento.dataFim ? agendamento.dataFim : agendamentoRequest.dataFim}"
                  class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
         </div>    
       </div>
@@ -117,7 +117,7 @@
     </button>
   </form>
   
-  <a href="/solicitacoes" class="block text-center text-md text-gray-500 mt-4 hover:underline">
+  <a href="/agendamentos" class="block text-center text-md text-gray-500 mt-4 hover:underline">
     Voltar à lista
   </a>
 </div>

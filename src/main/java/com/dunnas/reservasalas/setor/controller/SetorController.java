@@ -105,38 +105,49 @@ public class SetorController {
         }
 
         List<UsuarioRole> roles = List.of(UsuarioRole.ADMINISTRADOR, UsuarioRole.RECEPCIONISTA);
-        try {
-            model.addAttribute("setor", setor);
-            model.addAttribute("usuarios", usuarioService.list(roles));
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", e.toString());
-        }
 
+        SetorRequest setorRequest = SetorRequest.builder()
+                .id(setor.getId())
+                .nome(setor.getNome())
+                .valorCaixa(setor.getValorCaixa())
+                .recepcionistaId(setor.getRecepcionista() != null ? setor.getRecepcionista().getId() : null)
+                .ativo(setor.getAtivo())
+                .build();
+
+        model.addAttribute("setorRequest", setorRequest);
+        model.addAttribute("usuarios", usuarioService.list(roles));
         model.addAttribute("contentPage", "features/setor/setor-form.jsp");
+
         return "base";
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping
     public String create(
-            @Valid @ModelAttribute("setor") SetorRequest setor,
+            @Valid @ModelAttribute("setorRequest") SetorRequest setorRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
-        final String path = "features/setor/setor-form.jsp";
+
+        // Recarregar dados necessários para o formulário
+        List<UsuarioRole> roles = List.of(UsuarioRole.ADMINISTRADOR, UsuarioRole.RECEPCIONISTA);
+        model.addAttribute("usuarios", usuarioService.list(roles));
 
         if (result.hasErrors()) {
-            model.addAttribute("errorMessage", result.getAllErrors());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("errorMessage", "Erros de validação encontrados");
+            model.addAttribute("errors", result.getAllErrors()); // Adiciona erros específicos
+            model.addAttribute("contentPage", "features/setor/setor-form.jsp");
             return "base";
         }
+
         try {
-            Setor savedSetor = setorService.create(setor);
+            Setor savedSetor = setorService.create(setorRequest);
             redirectAttributes.addFlashAttribute("successMessage", "Setor criado com sucesso!");
             return "redirect:/setores/" + savedSetor.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar setor: " + e.getMessage());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("setorRequest", setorRequest); // Mantém os dados preenchidos
+            model.addAttribute("contentPage", "features/setor/setor-form.jsp");
             return "base";
         }
     }
@@ -145,32 +156,38 @@ public class SetorController {
     @PostMapping("/{id}/editar")
     public String update(
             @PathVariable Long id,
-            @Valid @ModelAttribute("setor") SetorRequest setor,
+            @Valid @ModelAttribute("setorRequest") SetorRequest setorRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
-        final String path = "features/setor/setor-form.jsp";
+
+        // Recarregar dados necessários para o formulário
+        List<UsuarioRole> roles = List.of(UsuarioRole.ADMINISTRADOR, UsuarioRole.RECEPCIONISTA);
+        model.addAttribute("usuarios", usuarioService.list(roles));
 
         if (result.hasErrors()) {
-            model.addAttribute("errorMessage", result.getAllErrors());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("errorMessage", "Erros de validação encontrados");
+            model.addAttribute("errors", result.getAllErrors()); // Adiciona erros específicos
+            model.addAttribute("contentPage", "features/setor/setor-form.jsp");
             return "base";
         }
+
         try {
-            Setor updatedSetor = setorService.update(id, setor);
+            Setor updatedSetor = setorService.update(id, setorRequest);
             if (updatedSetor == null) {
                 model.addAttribute("errorMessage", "Setor não encontrado.");
-                model.addAttribute("contentPage", path);
+                model.addAttribute("setorRequest", setorRequest);
+                model.addAttribute("contentPage", "features/setor/setor-form.jsp");
                 return "base";
             }
             redirectAttributes.addFlashAttribute("successMessage", "Setor atualizado com sucesso!");
             return "redirect:/setores/" + updatedSetor.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao atualizar setor: " + e.getMessage());
-            model.addAttribute("contentPage", path);
+            model.addAttribute("setorRequest", setorRequest); // Mantém os dados preenchidos
+            model.addAttribute("contentPage", "features/setor/setor-form.jsp");
             return "base";
         }
-
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")

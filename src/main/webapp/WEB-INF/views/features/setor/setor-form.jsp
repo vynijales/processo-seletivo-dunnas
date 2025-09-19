@@ -4,7 +4,7 @@
 <link href="/static/css/main.css" rel="stylesheet" />
 <link href="/static/css/form.css" rel="stylesheet" />
 
-<c:set var="isEdicao" value="${setor != null}" />
+<c:set var="isEdicao" value="${not empty setorRequest and not empty setorRequest.id}" />
 <c:set var="titulo" value="${isEdicao ? 'Editar Setor' : 'Novo Setor'}" />
 <c:set var="actionUrl" value="${isEdicao ? '/setores/' += setorRequest.id += '/editar' : '/setores'}" />
 <c:set var="textoBotao" value="${isEdicao ? 'Salvar' : 'Criar'}" />
@@ -28,8 +28,19 @@
             </div>
         </c:if>
         
+        <!-- Exibir erros de validação específicos -->
+        <c:if test="${not empty errors}">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <ul>
+                    <c:forEach var="error" items="${errors}">
+                        <li>${error.defaultMessage}</li>
+                    </c:forEach>
+                </ul>
+            </div>
+        </c:if>
+        
         <form action="${actionUrl}" method="post">
-            <input type="hidden" name="id" value="${not empty setor.id ? setor.id : setorRequest.id}" />
+            <input type="hidden" name="id" value="${setorRequest.id}" />
             
             <div class="form-group">
                 <label for="nome" class="form-label">Nome do Setor</label>
@@ -37,13 +48,16 @@
                     type="text"
                     id="nome"
                     name="nome"
-                    value="${not empty setor.nome ? setor.nome : setorRequest.nome}"
+                    value="${setorRequest.nome}"
                     minlength="1"
                     maxlength="100"
                     placeholder="Digite o nome do setor"
-                    class="form-input"
+                    class="form-input ${not empty errors['nome'] ? 'border-red-500' : ''}"
                     required
                 />
+                <c:if test="${not empty errors['nome']}">
+                    <p class="text-red-500 text-sm mt-1">${errors['nome']}</p>
+                </c:if>
             </div>
             
             <div class="form-group">
@@ -52,40 +66,37 @@
                     type="number"
                     id="valorCaixa"
                     name="valorCaixa"
-                    value="${not empty setor.valorCaixa ? setor.valorCaixa : setorRequest.valorCaixa}"
+                    value="${setorRequest.valorCaixa}"
                     min="0"
                     step="0.01"
                     placeholder="0,00"
-                    class="form-input"
+                    class="form-input ${not empty errors['valorCaixa'] ? 'border-red-500' : ''}"
                     required
                 />
+                <c:if test="${not empty errors['valorCaixa']}">
+                    <p class="text-red-500 text-sm mt-1">${errors['valorCaixa']}</p>
+                </c:if>
                 <p class="password-info">Utilize ponto (.) como separador decimal</p>
             </div>
             
             <div class="form-group">
                 <label for="recepcionistaId" class="form-label">Recepcionista Responsável</label>
                 <select
-                    class="form-input"
+                    class="form-input ${not empty errors['recepcionistaId'] ? 'border-red-500' : ''}"
                     id="recepcionistaId"
                     name="recepcionistaId"
                     required
                 >
                     <option value="">Selecione um recepcionista</option>
                     <c:forEach var="u" items="${usuarios}">
-                        <option value="${u.id}" 
-                            <c:choose>
-                                <c:when test="${not empty setor.recepcionista and setor.recepcionista.id eq u.id}">
-                                    selected
-                                </c:when>
-                                <c:when test="${not empty setorRequest.recepcionistaId and setorRequest.recepcionistaId eq u.id}">
-                                    selected
-                                </c:when>
-                            </c:choose>
-                        >
+                        <option value="${u.id}" ${setorRequest.recepcionistaId eq u.id ? 'selected' : ''}>
                             ${u.nome} - ${u.email}
                         </option>
                     </c:forEach>
                 </select>
+                <c:if test="${not empty errors['recepcionistaId']}">
+                    <p class="text-red-500 text-sm mt-1">${errors['recepcionistaId']}</p>
+                </c:if>
                 <p class="password-info">Selecione o recepcionista responsável por este setor</p>
             </div>
             

@@ -13,6 +13,8 @@ public class SolicitacaoMapper {
         final Usuario cliente = Usuario.builder().id(req.getClienteId())
                 .build();
 
+        Double valorPago = req.getValorPago() != null ? req.getValorPago() : 0;
+
         return Solicitacao.builder()
                 .id(req.getId())
                 .cliente(cliente)
@@ -23,9 +25,11 @@ public class SolicitacaoMapper {
 
                 .status(req.getStatus())
                 .sinalPago(req.isSinalPago())
+                .valorPago(valorPago)
 
                 .dataCriacao(req.getDataCriacao())
                 .dataFim(req.getDataFim())
+
                 .build();
     }
 }

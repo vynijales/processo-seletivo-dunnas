@@ -24,7 +24,7 @@
     />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/static/images/fav.ico" />
 
     <!-- Estilização -->
     <link href="/static/css/main.css" rel="stylesheet" />

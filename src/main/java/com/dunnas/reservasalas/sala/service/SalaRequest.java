@@ -1,7 +1,5 @@
 package com.dunnas.reservasalas.sala.service;
 
-import java.math.BigDecimal;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,7 +9,7 @@ public class SalaRequest {
     private Long id;
     private String nome;
     private int capacidade;
-    private BigDecimal valorAluguel;
+    private Double valorAluguel;
     private Long setorId;
     @Builder.Default
     private Boolean ativo = true;

@@ -65,6 +65,11 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
                           ${Capitalizar.capitalizar(s.status)}
                         </span>
                       </c:when>
+                      <c:when test="${s.status == 'AGUARDANDO_PAGAMENTO'}">
+                        <span class="badge badge-waiting">
+                          ${Capitalizar.capitalizar(s.status)}
+                        </span>
+                      </c:when>
                     </c:choose>
                   </td>
                   <td>${Capitalizar.capitalizar(s.sala.nome)}</td>

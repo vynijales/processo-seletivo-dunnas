@@ -1,7 +1,5 @@
 package com.dunnas.reservasalas.config;
 
-import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,6 +46,8 @@ public class DataLoader implements CommandLineRunner {
                 UsuarioRole.RECEPCIONISTA);
 
         // Criar clientes
+        criarUsuarioSeNaoExistir("Guilherme", "cliente@dunnas.com", "cliente123", UsuarioRole.CLIENTE);
+
         criarUsuarioSeNaoExistir("Carlos Oliveira", "carlos.oliveira@dunnas.com", "cliente123",
                 UsuarioRole.CLIENTE);
         criarUsuarioSeNaoExistir("Pedro Alves", "pedro.alves@dunnas.com", "cliente456",
@@ -160,7 +160,7 @@ public class DataLoader implements CommandLineRunner {
             Sala sala = Sala.builder()
                     .nome(nome)
                     .capacidade(capacidade)
-                    .valorAluguel(BigDecimal.valueOf(valorAluguel))
+                    .valorAluguel(valorAluguel)
                     .setor(setor)
                     .ativo(true)
                     .build();

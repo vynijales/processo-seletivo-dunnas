@@ -127,6 +127,9 @@ pageContext.setAttribute("dataFimPadrao", umaHoraDepois.format(html5Formatter));
             <c:otherwise>false</c:otherwise>
         </c:choose>
     " />
+
+    <input type="number" name="valorPago" style="display: none;" value="${solicitacao.valorPago}"/>
+
     <input type="hidden" name="ativo" value="true" />
     
     <button type="submit" class="w-full px-4 py-2 rounded font-semibold bg-blue-700 text-white hover:bg-blue-800 transition focus:outline-none">

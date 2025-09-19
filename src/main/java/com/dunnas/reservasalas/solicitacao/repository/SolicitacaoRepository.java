@@ -40,7 +40,7 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
         // Verifica se existe conflito de agendamento para uma sala
         @Query("SELECT COUNT(s) > 0 FROM Solicitacao s WHERE " +
                         "s.sala.id = :salaId AND " +
-                        "s.status IN ('SOLICITADO', 'CONFIRMADO') AND " +
+                        "s.status IN ('AGUARDANDO_PAGAMENTO', 'CONFIRMADO') AND " +
                         "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
         boolean existsConflitoAgendamento(
                         @Param("salaId") Long salaId,
@@ -53,7 +53,6 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
                         "s.status = 'CONFIRMADO' AND " +
                         "s.dataInicio >= :startDate AND " +
                         "s.dataFim <= :endDate")
-
         List<Solicitacao> findAgendamentosConfirmadosPorSalaEPeriodo(
                         @Param("salaId") Long salaId,
                         @Param("startDate") LocalDateTime startDate,

@@ -83,6 +83,11 @@
   color: #1f742c;
 }
 
+.badge-waiting {
+  background-color: #eee2fe;
+  color: #741f69;
+}
+
 .action-buttons {
   display: flex;
   gap: 0.5rem;

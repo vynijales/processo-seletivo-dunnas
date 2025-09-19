@@ -140,8 +140,7 @@ public class SolicitacaoController {
 
     @PostMapping
     public String create(
-            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest, // Alterado para
-                                                                                                // solicitacaoRequest
+            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
@@ -219,6 +218,27 @@ public class SolicitacaoController {
         }
     }
 
+    @GetMapping("/{id}/efetuarPagamento")
+    public String showConfirmarPagamentoForm(@PathVariable Long id, Model model) {
+        Solicitacao solicitacao = solicitacaoService.getById(id);
+        if (solicitacao == null) {
+            throw new EntityNotFoundException();
+        }
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+        List<Usuario> clientes = usuarioRepository.findAll();
+        List<Sala> salas = salaRepository.findAll();
+
+        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
+            clientes = List.of(usuarioMapper.toEntity(usuarioLogado));
+        }
+
+        model.addAttribute("clientes", clientes);
+        model.addAttribute("salas", salas);
+        model.addAttribute("solicitacao", solicitacao);
+        model.addAttribute("contentPage", "features/solicitacao/solicitacao-pagamento.jsp");
+        return "base";
+    }
+
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @PostMapping("/{id}/enviar-para-pagamento")
     public String enviarParaPagamento(
@@ -282,6 +302,45 @@ public class SolicitacaoController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erro ao confirmar pagamento: " + e.getMessage());
             return "redirect:/solicitacoes/" + id;
+        }
+    }
+
+    @PostMapping("/{id}/efetuarPagamento")
+    public String efetuarPagamento(
+            @PathVariable Long id,
+            @RequestParam("valor") Double valor,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        try {
+            Solicitacao solicitacao = solicitacaoService.getById(id);
+
+            if (solicitacao == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Solicitação não encontrada");
+                return "redirect:/solicitacoes";
+            }
+            // Verificar se o status atual é AGUARDANDO_PAGAMENTO
+            if (solicitacao.getStatus() != SolicitacaoStatus.AGUARDANDO_PAGAMENTO) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Só é possível efetuar pagamento para solicitações com status AGUARDANDO_PAGAMENTO");
+                return "redirect:/solicitacoes/" + id;
+            }
+            // Processar o pagamento e atualizar status
+            solicitacaoService.processarPagamento(id, valor);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Pagamento efetuado com sucesso e solicitação confirmada!");
+            return "redirect:/solicitacoes/" + id;
+
+        } catch (RuntimeException e) {
+            // Handle specific business exceptions
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao processar pagamento: " + e.getMessage());
+            return "redirect:/solicitacoes/" + id + "/efetuarPagamento";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Erro inesperado ao processar pagamento" + e.toString());
+            return "redirect:/solicitacoes/" + id + "/efetuarPagamento";
         }
     }
 

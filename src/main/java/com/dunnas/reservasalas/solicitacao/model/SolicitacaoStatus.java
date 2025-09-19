@@ -4,6 +4,7 @@ public enum SolicitacaoStatus {
     SOLICITADO,
     AGUARDANDO_PAGAMENTO,
     CONFIRMADO,
+    CONFIRMADO_PAGO,
     CANCELADO,
     FINALIZADO
 }

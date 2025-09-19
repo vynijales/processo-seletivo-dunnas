@@ -1,7 +1,5 @@
 package com.dunnas.reservasalas.sala.model;
 
-import java.math.BigDecimal;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -52,8 +50,8 @@ public class Sala extends BaseEntity {
 
     @NotNull(message = "O valor do aluguel é obrigatório")
     @PositiveOrZero(message = "O valor do aluguel deve ser positivo ou zero")
-    @Column(name = "valor_aluguel", nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorAluguel;
+    @Column(name = "valor_aluguel", nullable = false, columnDefinition = "NUMERIC(10,2)")
+    private Double valorAluguel;
 
     @NotNull(message = "O setor é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

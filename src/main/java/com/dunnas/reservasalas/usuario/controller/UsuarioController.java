@@ -92,7 +92,14 @@ public class UsuarioController extends HttpServlet {
     public String editForm(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
 
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+
         if (usuario == null) {
+            model.addAttribute("errorMessage", "Usuário não encontrado.");
+            return "redirect:/usuarios";
+        }
+
+        if (usuario.getRole() != UsuarioRole.CLIENTE && usuario.getId() == usuarioLogado.getId()) {
             model.addAttribute("errorMessage", "Usuário não encontrado.");
             return "redirect:/usuarios";
         }

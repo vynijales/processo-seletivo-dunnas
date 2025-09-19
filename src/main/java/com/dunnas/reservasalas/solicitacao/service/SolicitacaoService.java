@@ -151,6 +151,33 @@ public class SolicitacaoService {
     }
 
     @Transactional
+    public Solicitacao processarPagamento(Long id, Double valor) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Solicitação " + id + " não encontrada!"));
+
+        if (solicitacao.getStatus() != SolicitacaoStatus.AGUARDANDO_PAGAMENTO) {
+            throw new RuntimeException("Erro ao processar... status inválido");
+        }
+
+        Double valorAluguel = solicitacao.getSala().getValorAluguel();
+        Double valorPago = valor;
+        Double metadeValorAluguel = valorAluguel / 2;
+
+        if (valorPago < metadeValorAluguel) {
+            throw new RuntimeException("Valor insuficiente");
+        }
+
+        if (valorPago < valorAluguel) {
+            solicitacao.setStatus(SolicitacaoStatus.CONFIRMADO);
+        } else {
+            solicitacao.setStatus(SolicitacaoStatus.CONFIRMADO_PAGO);
+        }
+
+        solicitacao.setSinalPago(true);
+
+        return solicitacaoRepository.save(solicitacao);
+    }
+
     public Solicitacao marcarSinalPago(Long id) {
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
                 .orElse(null);

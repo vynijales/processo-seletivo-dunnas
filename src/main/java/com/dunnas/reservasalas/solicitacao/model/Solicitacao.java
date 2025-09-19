@@ -15,8 +15,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -55,7 +55,6 @@ public class Solicitacao extends BaseEntity {
     private Sala sala;
 
     @NotNull(message = "A data de início é obrigatória")
-    @FutureOrPresent(message = "A data de início deve ser atual ou futura")
     @Column(name = "data_inicio", nullable = false)
     private LocalDateTime dataInicio;
 
@@ -73,6 +72,11 @@ public class Solicitacao extends BaseEntity {
     @Column(name = "sinal_pago", nullable = false)
     @Builder.Default
     private Boolean sinalPago = false;
+
+    @NotNull(message = "O valor pago é obrigatório")
+    @PositiveOrZero(message = "O valor deve ser positivo ou zero")
+    @Column(name = "valor_pago", nullable = false, columnDefinition = "NUMERIC(10,2)")
+    private Double valorPago;
 
     @Column(name = "data_criacao", updatable = false)
     @CreationTimestamp

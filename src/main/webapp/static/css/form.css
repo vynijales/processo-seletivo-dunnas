@@ -178,3 +178,57 @@
     padding: 1.25rem;
   }
 }
+
+/* =============================== */
+
+.info-section {
+  margin-bottom: 2rem;
+}
+
+.info-section h2 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.info-box {
+  background-color: var(--gray-light);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.info-box p {
+  margin: 0.75rem 0;
+  color: var(--text-primary);
+}
+
+.info-box strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.input-error {
+  border-color: var(--error) !important;
+}
+
+.error-message {
+  color: var(--error);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.input-info {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.btn-primary i {
+  margin-right: 0.5rem;
+}
+
+.back-link i {
+  margin-right: 0.5rem;
+}

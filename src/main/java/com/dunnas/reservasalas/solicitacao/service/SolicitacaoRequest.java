@@ -23,6 +23,7 @@ public class SolicitacaoRequest {
     private SolicitacaoStatus status;
 
     private boolean sinalPago;
+    private Double valorPago;
 
     private LocalDateTime dataCriacao;
 }

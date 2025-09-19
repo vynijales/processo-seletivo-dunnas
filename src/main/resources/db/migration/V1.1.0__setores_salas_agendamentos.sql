@@ -40,19 +40,61 @@ CREATE TABLE IF NOT EXISTS solicitacoes_agendamentos (
     sala_id BIGINT NOT NULL,
     data_inicio TIMESTAMP NOT NULL,
     data_fim TIMESTAMP NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'SOLICITADO', -- PENDENTE, CONFIRMADO, CANCELADO
-    sinal_pago BOOLEAN NOT NULL DEFAULT FALSE, -- Indica se o sinal de 50% foi pago
+    status VARCHAR(50) NOT NULL DEFAULT 'SOLICITADO',
+    sinal_pago BOOLEAN NOT NULL DEFAULT FALSE,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    valor_pago NUMERIC(10, 2),
+    valor_pago NUMERIC(10, 2) NOT NULL,
 
     CONSTRAINT fk_solicitacoes_cliente FOREIGN KEY (cliente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     CONSTRAINT fk_solicitacoes_sala FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE,
-
-    CONSTRAINT chk_status_valido CHECK (status IN ('SOLICITADO', 'AGUARDANDO_PAGAMENTO', 'CONFIRMADO', 'CANCELADO', 'FINALIZADO')),
-    CONSTRAINT chk_data_inicio_futura CHECK (data_inicio >= CURRENT_TIMESTAMP),
-    CONSTRAINT chk_data_fim_maior CHECK (data_fim > data_inicio)
+    CONSTRAINT chk_status_valido CHECK (status IN ('SOLICITADO', 'AGUARDANDO_PAGAMENTO', 'CONFIRMADO', 'CONFIRMADO_PAGO', 'CANCELADO', 'FINALIZADO'))
 );
+
+-- Trigger para validação na inserção
+CREATE OR REPLACE FUNCTION validate_agendamento_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.data_inicio < CURRENT_TIMESTAMP THEN
+        RAISE EXCEPTION 'Data de início deve ser futura';
+    END IF;
+    
+    IF NEW.data_fim <= NEW.data_inicio THEN
+        RAISE EXCEPTION 'Data de fim deve ser maior que data de início';
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tr_validate_agendamento_insert
+    BEFORE INSERT ON solicitacoes_agendamentos
+    FOR EACH ROW
+    EXECUTE FUNCTION validate_agendamento_insert();
+
+-- Trigger para validação na atualização (apenas para novos agendamentos)
+CREATE OR REPLACE FUNCTION validate_agendamento_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Só valida se o status não for FINALIZADO ou CANCELADO
+    IF OLD.status NOT IN ('FINALIZADO', 'CANCELADO') THEN
+        IF NEW.data_inicio < CURRENT_TIMESTAMP AND NEW.data_inicio <> OLD.data_inicio THEN
+            RAISE EXCEPTION 'Não é possível alterar para uma data passada';
+        END IF;
+        
+        IF NEW.data_fim <= NEW.data_inicio THEN
+            RAISE EXCEPTION 'Data de fim deve ser maior que data de início';
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tr_validate_agendamento_update
+    BEFORE UPDATE ON solicitacoes_agendamentos
+    FOR EACH ROW
+    EXECUTE FUNCTION validate_agendamento_update();
 
 CREATE TABLE IF NOT EXISTS agendamentos (
     id BIGSERIAL PRIMARY KEY,

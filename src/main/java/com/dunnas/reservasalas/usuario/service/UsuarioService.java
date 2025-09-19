@@ -95,11 +95,8 @@ public class UsuarioService implements UserDetailsService {
 
     @Transactional
     public Usuario update(Long id, UsuarioRequest request) {
-        Usuario usuario = usuarioRepository.findById(id).orElse(null);
-
-        if (usuario == null) {
-            return null;
-        }
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
         String emailAtual = usuario.getEmail();
         String emailNovo = request.getEmail();
@@ -109,21 +106,17 @@ public class UsuarioService implements UserDetailsService {
             throw new EmailDuplicadoException();
         }
 
-        Usuario atualizado = usuarioMapper.toEntity(request);
+        // Atualiza os campos
+        usuario.setNome(request.getNome());
+        usuario.setEmail(request.getEmail());
+        usuario.setRole(request.getRole());
 
+        // Atualiza senha se fornecida
         if (request.getSenha() != null && !request.getSenha().isBlank()) {
-            atualizado.setSenha(passwordEncoder.encode(request.getSenha()));
-            return usuarioRepository.save(atualizado);
+            usuario.setSenha(passwordEncoder.encode(request.getSenha()));
         }
 
-        usuarioRepository.updateUsuarioWithoutPassword(
-                atualizado.getId(),
-                atualizado.getNome(),
-                atualizado.getEmail(),
-                atualizado.getRole(),
-                atualizado.isAtivo());
-        return atualizado;
-
+        return usuarioRepository.save(usuario);
     }
 
     @Transactional

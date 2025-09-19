@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS solicitacoes_agendamentos (
     sala_id BIGINT NOT NULL,
     data_inicio TIMESTAMP NOT NULL,
     data_fim TIMESTAMP NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'PENDENTE', -- PENDENTE, CONFIRMADO, CANCELADO
+    status VARCHAR(50) NOT NULL DEFAULT 'SOLICITADO', -- PENDENTE, CONFIRMADO, CANCELADO
     sinal_pago BOOLEAN NOT NULL DEFAULT FALSE, -- Indica se o sinal de 50% foi pago
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS solicitacoes_agendamentos (
     CONSTRAINT fk_solicitacoes_cliente FOREIGN KEY (cliente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     CONSTRAINT fk_solicitacoes_sala FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE,
 
-    CONSTRAINT chk_status_valido CHECK (status IN ('PENDENTE', 'CONFIRMADO', 'CANCELADO')),
-    CONSTRAINT chk_data_inicio_futura CHECK (data_inicio > CURRENT_TIMESTAMP),
+    CONSTRAINT chk_status_valido CHECK (status IN ('SOLICITADO', 'CONFIRMADO', 'CANCELADO', 'FINALIZADO')),
+    CONSTRAINT chk_data_inicio_futura CHECK (data_inicio >= CURRENT_TIMESTAMP),
     CONSTRAINT chk_data_fim_maior CHECK (data_fim > data_inicio)
 );
 

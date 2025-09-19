@@ -112,24 +112,29 @@ public class UsuarioController extends HttpServlet {
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
+
+        // Validação manual da senha
         if (usuarioRequest.getSenha() == null || usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
         }
 
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
-            model.addAttribute("errorMessage", result.getAllErrors());
+            model.addAttribute("errorMessage", "Erros de validação encontrados");
+            model.addAttribute("errors", result.getAllErrors()); // Adiciona erros específicos
             model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
             return "base";
         }
+
         try {
             Usuario savedUsuario = usuarioService.create(usuarioRequest);
             redirectAttributes.addFlashAttribute("successMessage", "Usuário criado com sucesso!");
             return "redirect:/usuarios/" + savedUsuario.getId();
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erro: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("usuarioRequest", usuarioRequest);
-            return "redirect:/usuarios/criar";
+            model.addAttribute("errorMessage", "Erro ao criar usuário: " + e.getMessage());
+            model.addAttribute("usuarioRequest", usuarioRequest);
+            model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
+            return "base";
         }
     }
 
@@ -140,26 +145,31 @@ public class UsuarioController extends HttpServlet {
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
+
         // Validação manual da senha na edição (só se preenchida)
         if (usuarioRequest.getSenha() != null && !usuarioRequest.getSenha().isBlank()
                 && usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
         }
+
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
-            model.addAttribute("errorMessage", result.getAllErrors());
+            model.addAttribute("errorMessage", "Erros de validação encontrados");
+            model.addAttribute("errors", result.getAllErrors()); // Adiciona erros específicos
             model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
             return "base";
         }
+
         try {
             usuarioRequest.setId(id); // Garante que o id está correto
             Usuario savedUsuario = usuarioService.update(id, usuarioRequest);
             redirectAttributes.addFlashAttribute("successMessage", "Usuário atualizado com sucesso!");
             return "redirect:/usuarios/" + savedUsuario.getId();
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Erro: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("usuarioRequest", usuarioRequest);
-            return "redirect:/usuarios/" + id + "/editar";
+            model.addAttribute("errorMessage", "Erro ao atualizar usuário: " + e.getMessage());
+            model.addAttribute("usuarioRequest", usuarioRequest);
+            model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
+            return "base";
         }
     }
 

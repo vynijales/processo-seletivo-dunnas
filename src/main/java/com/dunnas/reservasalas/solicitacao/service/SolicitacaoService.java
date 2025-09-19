@@ -75,6 +75,15 @@ public class SolicitacaoService {
         return solicitacaoRepository.save(novaSolicitacao);
     }
 
+    public Solicitacao alterarStatus(Long id, SolicitacaoStatus status) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada com ID: " + id));
+
+        solicitacao.setStatus(status);
+
+        return solicitacaoRepository.save(solicitacao);
+    }
+
     @Transactional
     public Solicitacao update(Long id, SolicitacaoRequest req) {
         Solicitacao existingSolicitacao = solicitacaoRepository.findById(id)
@@ -122,6 +131,25 @@ public class SolicitacaoService {
         return updateStatus(id, SolicitacaoStatus.CANCELADO);
     }
 
+    public List<Solicitacao> getSolicitacoesPendentes() {
+        return solicitacaoRepository.findByStatusOrderByDataCriacaoAsc("SOLICITADO");
+    }
+
+    public List<Solicitacao> getAgendamentosConfirmadosPorPeriodo(
+            Long salaId, LocalDateTime startDate, LocalDateTime endDate) {
+        return solicitacaoRepository.findAgendamentosConfirmadosPorSalaEPeriodo(salaId, startDate, endDate);
+    }
+
+    public boolean existsConflitoAgendamentoConfirmado(Long salaId, LocalDateTime dataInicio, LocalDateTime dataFim) {
+        return solicitacaoRepository.existsConflitoAgendamentoConfirmado(salaId, dataInicio, dataFim);
+    }
+
+    public boolean existsConflitoAgendamentoConfirmadoExcludingCurrent(Long salaId, LocalDateTime dataInicio,
+            LocalDateTime dataFim, Long excludeId) {
+        return solicitacaoRepository.existsConflitoAgendamentoConfirmadoExcludingCurrent(salaId, dataInicio, dataFim,
+                excludeId);
+    }
+
     @Transactional
     public Solicitacao marcarSinalPago(Long id) {
         Solicitacao solicitacao = solicitacaoRepository.findById(id)
@@ -144,12 +172,4 @@ public class SolicitacaoService {
         return false;
     }
 
-    public List<Solicitacao> getSolicitacoesPendentes() {
-        return solicitacaoRepository.findByStatusOrderByDataCriacaoAsc("SOLICITADO");
-    }
-
-    public List<Solicitacao> getAgendamentosConfirmadosPorPeriodo(
-            Long salaId, LocalDateTime startDate, LocalDateTime endDate) {
-        return solicitacaoRepository.findAgendamentosConfirmadosPorSalaEPeriodo(salaId, startDate, endDate);
-    }
 }

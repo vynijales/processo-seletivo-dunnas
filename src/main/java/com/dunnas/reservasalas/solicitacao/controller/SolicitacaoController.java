@@ -25,6 +25,7 @@ import com.dunnas.reservasalas.core.auth.AuthenticationController;
 import com.dunnas.reservasalas.sala.model.Sala;
 import com.dunnas.reservasalas.sala.repository.SalaRepository;
 import com.dunnas.reservasalas.solicitacao.model.Solicitacao;
+import com.dunnas.reservasalas.solicitacao.model.SolicitacaoStatus;
 import com.dunnas.reservasalas.solicitacao.service.SolicitacaoRequest;
 import com.dunnas.reservasalas.solicitacao.service.SolicitacaoService;
 import com.dunnas.reservasalas.solicitacao.utils.SolicitacaoValidator;
@@ -55,7 +56,11 @@ public class SolicitacaoController {
             @RequestParam(defaultValue = "dataFim") String sort,
             Model model) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Sort.Direction direction = "dataInicio".equals(sort)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
         Page<Solicitacao> solicitacoes;
 
         if (q != null && !q.trim().isEmpty()) {
@@ -178,8 +183,7 @@ public class SolicitacaoController {
     @PostMapping("/{id}/editar")
     public String update(
             @PathVariable Long id,
-            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest, // Alterado para
-                                                                                                // solicitacaoRequest
+            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
@@ -212,6 +216,72 @@ public class SolicitacaoController {
             model.addAttribute("solicitacaoRequest", solicitacaoRequest);
             model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
             return "base";
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PostMapping("/{id}/enviar-para-pagamento")
+    public String enviarParaPagamento(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        try {
+            // Verificar se há conflitos antes de enviar para pagamento
+            Solicitacao solicitacao = solicitacaoService.getById(id);
+
+            if (solicitacao == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Solicitação não encontrada");
+                return "redirect:/solicitacoes";
+            }
+
+            // Verificar se já existe uma solicitação CONFIRMADA para o mesmo período
+            boolean hasConflict = solicitacaoService.existsConflitoAgendamento(
+                    solicitacao.getSala().getId(),
+                    solicitacao.getDataInicio(),
+                    solicitacao.getDataFim());
+
+            if (hasConflict) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Não é possível enviar para pagamento: já existe uma solicitação CONFIRMADA para este período");
+                return "redirect:/solicitacoes/" + id;
+            }
+
+            // Se não houver conflito, alterar o status
+            solicitacaoService.alterarStatus(id, SolicitacaoStatus.AGUARDANDO_PAGAMENTO);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Solicitação enviada para aguardando pagamento com sucesso!");
+            return "redirect:/solicitacoes/" + id;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao enviar para pagamento: " + e.getMessage());
+            return "redirect:/solicitacoes/" + id;
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PostMapping("/{id}/confirmar-pagamento")
+    public String confirmarPagamento(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            Solicitacao solicitacao = solicitacaoService.marcarSinalPago(id);
+
+            if (solicitacao != null && solicitacao.getSinalPago()) {
+                // Se o sinal foi pago, confirmar a solicitação
+                solicitacaoService.alterarStatus(id, SolicitacaoStatus.CONFIRMADO);
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Pagamento confirmado e solicitação confirmada com sucesso!");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Erro ao confirmar pagamento");
+            }
+
+            return "redirect:/solicitacoes/" + id;
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao confirmar pagamento: " + e.getMessage());
+            return "redirect:/solicitacoes/" + id;
         }
     }
 

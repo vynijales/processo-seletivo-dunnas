@@ -111,9 +111,9 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
             <div class="empty-state-icon">
               <i class="fas fa-calendar-check"></i>
             </div>
-            <h3 class="empty-state-text">Nenhuma agendamento encontrada</h3>
+            <h3 class="empty-state-text">Nenhum agendamento encontrada</h3>
             <a href="/agendamentos/criar" class="btn btn-primary btn-new">
-              <i class="fas fa-plus"></i> Criar Primeira Agendamento
+              <i class="fas fa-plus"></i> Criar Primeiro Agendamento
             </a>
           </div>
         </c:otherwise>

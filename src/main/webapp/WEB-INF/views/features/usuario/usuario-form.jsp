@@ -107,28 +107,29 @@
                     <p class="password-info">Mínimo de 8 caracteres</p>
                 </c:if>
             </div>
-            
-            <div class="form-group">
-                <label for="role" class="form-label">Nível de Acesso</label>
-                <select 
-                    class="form-input ${not empty errors['role'] ? 'border-red-500' : ''}" 
-                    id="role" 
-                    name="role"
-                    ${usuarioLogado.role != 'ADMINISTRADOR' ? 'disabled' : ''}
-                    required
-                >
-                    <option value="">Selecione o nível de acesso</option>
-                    <option value="CLIENTE" ${usuarioRequest.role == 'CLIENTE' ? 'selected' : ''}>Cliente</option>
-                    <option value="RECEPCIONISTA" ${usuarioRequest.role == 'RECEPCIONISTA' ? 'selected' : ''}>Recepcionista</option>
-                    <option value="ADMINISTRADOR" ${usuarioRequest.role == 'ADMINISTRADOR' ? 'selected' : ''}>Administrador</option>
-                </select>
-                <c:if test="${not empty errors['role']}">
-                    <p class="text-red-500 text-sm mt-1">${errors['role']}</p>
-                </c:if>
-                <c:if test="${usuarioLogado.role != 'ADMINISTRADOR'}">
-                    <p class="password-info">Apenas administradores podem alterar o nível de acesso</p>
-                </c:if>
-            </div>
+            <c:if test="${usuarioLogado != null}">
+                <div class="form-group">
+                    <label for="role" class="form-label">Nível de Acesso</label>
+                    <select 
+                        class="form-input ${not empty errors['role'] ? 'border-red-500' : ''}" 
+                        id="role" 
+                        name="role"
+                        ${usuarioLogado.role != 'ADMINISTRADOR' ? 'disabled' : ''}
+                        required
+                    >
+                        <option value="">Selecione o nível de acesso</option>
+                        <option value="CLIENTE" ${usuarioRequest.role == 'CLIENTE' ? 'selected' : ''}>Cliente</option>
+                        <option value="RECEPCIONISTA" ${usuarioRequest.role == 'RECEPCIONISTA' ? 'selected' : ''}>Recepcionista</option>
+                        <option value="ADMINISTRADOR" ${usuarioRequest.role == 'ADMINISTRADOR' ? 'selected' : ''}>Administrador</option>
+                    </select>
+                    <c:if test="${not empty errors['role']}">
+                        <p class="text-red-500 text-sm mt-1">${errors['role']}</p>
+                    </c:if>
+                    <c:if test="${usuarioLogado.role != 'ADMINISTRADOR'}">
+                        <p class="password-info">Apenas administradores podem alterar o nível de acesso</p>
+                    </c:if>
+                </div>
+            </c:if>
             
             <input type="hidden" name="ativo" value="true" />
             
@@ -136,9 +137,8 @@
                 <i class="fas ${isEdicao ? 'fa-save' : 'fa-plus'} mr-2"></i> ${textoBotao}
             </button>
         </form>
-        
-        <a href="/usuarios" class="back-link">
-            <i class="fas fa-arrow-left mr-1"></i> Voltar à lista de usuários
+        <a href="javascript:history.back()" class="back-link">
+            <i class="fas fa-arrow-left mr-1"></i> Voltar
         </a>
     </div>
 </div>

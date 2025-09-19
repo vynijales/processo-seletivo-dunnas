@@ -3,6 +3,7 @@ package com.dunnas.reservasalas.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,13 +25,11 @@ public class SecurityConfig {
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
 						// Todas as rotas públicas
-						.requestMatchers("/entrar", "/processar-login").permitAll()
+						.requestMatchers("/entrar", "/criar-conta", "/processar-entrar", "/processar-criar-conta")
+						.permitAll()
+						.requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
 
-						// Clientes não podem criar criar usuários
-						.requestMatchers("/usuarios/criar")
-						.hasAnyAuthority("ADMINISTRADOR", "RECEPCIONISTA")
-
-						.requestMatchers("/WEB-INF/views/**", "/entrar",
+						.requestMatchers("/WEB-INF/views/**",
 								"/index",
 								"/static/**")
 						.permitAll()
@@ -38,7 +37,7 @@ public class SecurityConfig {
 
 				.formLogin(form -> form
 						.loginPage("/entrar")
-						.loginProcessingUrl("/processing-login")
+						.loginProcessingUrl("/processar-entrar")
 						.failureHandler(customFailureHandler)
 						.usernameParameter("email")
 						.passwordParameter("password")

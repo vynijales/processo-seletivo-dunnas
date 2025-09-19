@@ -14,6 +14,8 @@ public class FormatarData {
 
     private static final DateTimeFormatter FORMATTER_HORA = DateTimeFormatter.ofPattern("HH:mm");
 
+    private static final DateTimeFormatter FORMATTER_HTML5 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
     /**
      * Converte LocalDateTime para String no formato padrão (dd/MM/yyyy HH:mm)
      */
@@ -116,6 +118,32 @@ public class FormatarData {
             return true;
         } catch (DateTimeParseException e) {
             return false;
+        }
+    }
+
+    /**
+     * Converte LocalDateTime para String no formato HTML5 (yyyy-MM-ddTHH:mm)
+     * Para uso em inputs do tipo datetime-local
+     */
+    public static String toHtml5String(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "";
+        }
+        return dateTime.format(FORMATTER_HTML5); // CORREÇÃO: Usar a constante
+    }
+
+    /**
+     * Converte String no formato HTML5 (yyyy-MM-ddTHH:mm) para LocalDateTime
+     */
+    public static LocalDateTime fromHtml5String(String dataHoraString) {
+        if (dataHoraString == null || dataHoraString.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return LocalDateTime.parse(dataHoraString, FORMATTER_HTML5);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Formato de data/hora inválido para HTML5. Use: yyyy-MM-ddTHH:mm", e);
         }
     }
 }

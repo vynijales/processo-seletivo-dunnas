@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.dunnas.reservasalas.core.auth.AuthenticationController;
 import com.dunnas.reservasalas.usuario.model.Usuario;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 import com.dunnas.reservasalas.usuario.service.UsuarioRequest;
+import com.dunnas.reservasalas.usuario.service.UsuarioResponse;
 import com.dunnas.reservasalas.usuario.service.UsuarioService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/usuarios")
 public class UsuarioController extends HttpServlet {
     private final UsuarioService usuarioService;
+    private final AuthenticationController autenticationController;
 
     @GetMapping
     public String list(
@@ -113,6 +116,8 @@ public class UsuarioController extends HttpServlet {
             RedirectAttributes redirectAttributes,
             Model model) {
 
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+
         // Validação manual da senha
         if (usuarioRequest.getSenha() == null || usuarioRequest.getSenha().length() < 8) {
             result.rejectValue("senha", "error.senha", "Senha deve ter pelo menos 8 caracteres");
@@ -121,20 +126,38 @@ public class UsuarioController extends HttpServlet {
         if (result.hasErrors()) {
             model.addAttribute("usuarioRequest", usuarioRequest);
             model.addAttribute("errorMessage", "Erros de validação encontrados");
-            model.addAttribute("errors", result.getAllErrors()); // Adiciona erros específicos
-            model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
-            return "base";
+            model.addAttribute("errors", result.getAllErrors());
+
+            // Decidir qual view retornar baseado no contexto
+            if (usuarioLogado != null) {
+                // Usuário logado acessando pelo painel admin
+                model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
+                return "base";
+            } else {
+                // Usuário não logado criando conta pela página pública
+                return "features/usuario/usuario-form"; // ← Corrigido aqui
+            }
         }
 
         try {
             Usuario savedUsuario = usuarioService.create(usuarioRequest);
             redirectAttributes.addFlashAttribute("successMessage", "Usuário criado com sucesso!");
-            return "redirect:/usuarios/" + savedUsuario.getId();
+
+            if (usuarioLogado != null) {
+                return "redirect:/usuarios/" + savedUsuario.getId();
+            } else {
+                return "redirect:/entrar"; // Redireciona para login após criar conta
+            }
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar usuário: " + e.getMessage());
             model.addAttribute("usuarioRequest", usuarioRequest);
-            model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
-            return "base";
+
+            if (usuarioLogado != null) {
+                model.addAttribute("contentPage", "features/usuario/usuario-form.jsp");
+                return "base";
+            } else {
+                return "features/usuario/usuario-form";
+            }
         }
     }
 

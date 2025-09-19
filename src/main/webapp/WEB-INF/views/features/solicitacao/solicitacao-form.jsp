@@ -2,6 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <link href="/static/css/main.css" rel="stylesheet" />
 <link href="/static/css/form.css" rel="stylesheet" />
@@ -10,6 +12,16 @@
 <c:set var="titulo" value="${isEdicao ? 'Editar Solicitação' : 'Nova Solicitação'}" />
 <c:set var="actionUrl" value="${isEdicao ? '/solicitacoes/' += solicitacao.id += '/editar' : '/solicitacoes'}" />
 <c:set var="textoBotao" value="${isEdicao ? 'Salvar' : 'Criar'}" />
+
+<%
+// Configurar formatter e datas
+DateTimeFormatter html5Formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+LocalDateTime agora = LocalDateTime.now().plusMinutes(1);
+LocalDateTime umaHoraDepois = agora.plusHours(1).plusMinutes(1);
+
+pageContext.setAttribute("dataInicioPadrao", agora.format(html5Formatter));
+pageContext.setAttribute("dataFimPadrao", umaHoraDepois.format(html5Formatter));
+%>
 
 <div class="max-w-lg mx-auto bg-white rounded shadow-md p-8 mt-8">
   <h1 class="text-2xl font-bold text-blue-700 mb-6">${titulo}</h1>
@@ -97,19 +109,24 @@
         <div class="w-full">
           <label for="dataInicio" class="block font-semibold mb-1">Data inicial:</label>
           <input type="datetime-local" id="dataInicio" name="dataInicio"
-                 value="${not empty solicitacao.dataInicio ? solicitacao.dataInicio : solicitacaoRequest.dataInicio}"
+                 value="${not empty solicitacao.dataInicio ? solicitacao.dataInicio : dataInicioPadrao}"
                  class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
         </div>
         <div class="w-full">
           <label for="dataFim" class="block font-semibold mb-1">Data final:</label>
           <input type="datetime-local" id="dataFim" name="dataFim"
-                 value="${not empty solicitacao.dataFim ? solicitacao.dataFim : solicitacaoRequest.dataFim}"
+                 value="${not empty solicitacao.dataFim ? solicitacao.dataFim : dataFimPadrao}"
                  class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
         </div>    
       </div>
     </div>
     
-    <input type="hidden" name="sinalPago" value="true" />
+    <input type="hidden" name="sinalPago" value="
+        <c:choose>
+            <c:when test="${not empty solicitacao}">${solicitacao.sinalPago}</c:when>
+            <c:otherwise>false</c:otherwise>
+        </c:choose>
+    " />
     <input type="hidden" name="ativo" value="true" />
     
     <button type="submit" class="w-full px-4 py-2 rounded font-semibold bg-blue-700 text-white hover:bg-blue-800 transition focus:outline-none">

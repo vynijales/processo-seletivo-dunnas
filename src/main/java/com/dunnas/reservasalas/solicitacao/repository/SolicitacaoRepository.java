@@ -53,6 +53,7 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
                         "s.status = 'CONFIRMADO' AND " +
                         "s.dataInicio >= :startDate AND " +
                         "s.dataFim <= :endDate")
+
         List<Solicitacao> findAgendamentosConfirmadosPorSalaEPeriodo(
                         @Param("salaId") Long salaId,
                         @Param("startDate") LocalDateTime startDate,
@@ -80,6 +81,26 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
                         "s.id != :excludeId AND " +
                         "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
         boolean existsConflitoAgendamentoExcludingCurrent(
+                        @Param("salaId") Long salaId,
+                        @Param("dataInicio") LocalDateTime dataInicio,
+                        @Param("dataFim") LocalDateTime dataFim,
+                        @Param("excludeId") Long excludeId);
+
+        @Query("SELECT COUNT(s) > 0 FROM Solicitacao s WHERE " +
+                        "s.sala.id = :salaId AND " +
+                        "s.status = 'CONFIRMADO' AND " +
+                        "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
+        boolean existsConflitoAgendamentoConfirmado(
+                        @Param("salaId") Long salaId,
+                        @Param("dataInicio") LocalDateTime dataInicio,
+                        @Param("dataFim") LocalDateTime dataFim);
+
+        @Query("SELECT COUNT(s) > 0 FROM Solicitacao s WHERE " +
+                        "s.sala.id = :salaId AND " +
+                        "s.status = 'CONFIRMADO' AND " +
+                        "s.id != :excludeId AND " +
+                        "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
+        boolean existsConflitoAgendamentoConfirmadoExcludingCurrent(
                         @Param("salaId") Long salaId,
                         @Param("dataInicio") LocalDateTime dataInicio,
                         @Param("dataFim") LocalDateTime dataFim,

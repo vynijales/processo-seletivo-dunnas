@@ -21,6 +21,13 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     </jsp:include>
   </c:if>
 
+  <c:if test="${not empty successMessage}">
+    <jsp:include page="/WEB-INF/views/partials/alert.jsp">
+      <jsp:param name="message" value="${successMessage}" />
+      <jsp:param name="type" value="success" />
+    </jsp:include>
+  </c:if>
+
   <div class="user-profile-card">
     <div class="user-profile-header">
       <div class="user-avatar">
@@ -92,21 +99,70 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     </div>
 
     <c:if
-      test="${usuarioLogado.role == 'ADMINISTRADOR' && solicitacao != null}"
+      test="${(usuarioLogado.role == 'ADMINISTRADOR' || usuarioLogado.role == 'RECEPCIONISTA') && solicitacao != null}"
     >
       <div class="user-actions">
-        <a
-          href="/solicitacoes/${solicitacao.id}/editar"
-          class="btn btn-warning btn-action"
+        <!-- Botão para Enviar para Pagamento (visível para ADMINISTRADOR e RECEPCIONISTA) -->
+        <c:if test="${solicitacao.status == 'SOLICITADO'}">
+          <form
+            action="/solicitacoes/${solicitacao.id}/enviar-para-pagamento"
+            method="post"
+            style="display: inline"
+          >
+            <input
+              type="hidden"
+              name="${_csrf.parameterName}"
+              value="${_csrf.token}"
+            />
+            <button
+              type="submit"
+              class="btn btn-info btn-action"
+              onclick="return confirm('Tem certeza que deseja enviar esta solicitação para aguardando pagamento?')"
+            >
+              <i class="fas fa-money-bill-wave"></i> Enviar para Pagamento
+            </button>
+          </form>
+        </c:if>
+
+        <!-- Botão para Confirmar Pagamento (visível para ADMINISTRADOR e RECEPCIONISTA) -->
+        <c:if
+          test="${solicitacao.status == 'AGUARDANDO_PAGAMENTO' && !solicitacao.sinalPago}"
         >
-          <i class="fas fa-edit"></i> Editar Solicitação
-        </a>
-        <a
-          href="/solicitacoes/${solicitacao.id}/excluir"
-          class="btn btn-error btn-action"
-        >
-          <i class="fas fa-trash"></i> Excluir Solicitação
-        </a>
+          <form
+            action="/solicitacoes/${solicitacao.id}/confirmar-pagamento"
+            method="post"
+            style="display: inline"
+          >
+            <input
+              type="hidden"
+              name="${_csrf.parameterName}"
+              value="${_csrf.token}"
+            />
+            <button
+              type="submit"
+              class="btn btn-success btn-action"
+              onclick="return confirm('Confirmar recebimento do pagamento?')"
+            >
+              <i class="fas fa-check-circle"></i> Confirmar Pagamento
+            </button>
+          </form>
+        </c:if>
+
+        <!-- Botões de Editar e Excluir (apenas para ADMINISTRADOR) -->
+        <c:if test="${usuarioLogado.role == 'ADMINISTRADOR'}">
+          <a
+            href="/solicitacoes/${solicitacao.id}/editar"
+            class="btn btn-warning btn-action"
+          >
+            <i class="fas fa-edit"></i> Editar Solicitação
+          </a>
+          <a
+            href="/solicitacoes/${solicitacao.id}/excluir"
+            class="btn btn-error btn-action"
+          >
+            <i class="fas fa-trash"></i> Excluir Solicitação
+          </a>
+        </c:if>
       </div>
     </c:if>
   </div>
@@ -118,13 +174,13 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     color: white;
   }
 
-  .user-status.aprovado {
-    background-color: #10b981;
+  .user-status.aguardando_pagamento {
+    background-color: #f59e0b;
     color: white;
   }
 
-  .user-status.negado {
-    background-color: #ef4444;
+  .user-status.confirmado {
+    background-color: #10b981;
     color: white;
   }
 
@@ -141,5 +197,10 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
   .user-status.em_andamento {
     background-color: #f59e0b;
     color: white;
+  }
+
+  .btn-action {
+    margin-right: 8px;
+    margin-bottom: 8px;
   }
 </style>

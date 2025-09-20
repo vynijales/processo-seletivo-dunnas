@@ -20,10 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.dunnas.reservasalas.core.auth.AuthenticationController;
 import com.dunnas.reservasalas.setor.model.Setor;
 import com.dunnas.reservasalas.setor.service.SetorRequest;
 import com.dunnas.reservasalas.setor.service.SetorService;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
+import com.dunnas.reservasalas.usuario.service.UsuarioResponse;
 import com.dunnas.reservasalas.usuario.service.UsuarioService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 public class SetorController {
     private final SetorService setorService;
     private final UsuarioService usuarioService;
+    private final AuthenticationController autenticationController;
 
     @GetMapping
     public String list(
@@ -44,21 +47,25 @@ public class SetorController {
             Model model) {
 
         final String path = "features/setor/setor-listar.jsp";
-
-        // if (result.hasErrors()) {
-        // model.addAttribute("errorMessage", result.getAllErrors());
-        // model.addAttribute("contentPage", path);
-        // return "base";
-        // }
-
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Setor> setores;
 
-        if (q != null && !q.trim().isEmpty()) {
-            setores = setorService.search(q.trim(), pageable);
-            model.addAttribute("query", q);
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+
+        // Se for RECEPCIONISTA, filtra apenas os setores do usuário logado
+        if (usuarioLogado.getRole() == UsuarioRole.RECEPCIONISTA) {
+            if (q != null && !q.trim().isEmpty()) {
+                setores = setorService.searchByRecepcionistaAndQuery(usuarioLogado.getId(), q.trim(), pageable);
+            } else {
+                setores = setorService.findByRecepcionistaId(usuarioLogado.getId(), pageable);
+            }
         } else {
-            setores = setorService.list(pageable);
+            // Para ADMINISTRADOR e outros roles, mostra todos os setores
+            if (q != null && !q.trim().isEmpty()) {
+                setores = setorService.search(q.trim(), pageable);
+            } else {
+                setores = setorService.list(pageable);
+            }
         }
 
         model.addAttribute("setores", setores);
@@ -67,6 +74,7 @@ public class SetorController {
         model.addAttribute("sortField", sort);
         model.addAttribute("totalPages", setores.getTotalPages());
         model.addAttribute("totalItems", setores.getTotalElements());
+        model.addAttribute("usuarioLogado", usuarioLogado); // Adiciona usuário logado ao modelo
 
         model.addAttribute("contentPage", path);
         return "base";

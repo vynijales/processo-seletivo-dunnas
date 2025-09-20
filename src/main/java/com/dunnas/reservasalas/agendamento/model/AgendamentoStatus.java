@@ -1,8 +1,7 @@
 package com.dunnas.reservasalas.agendamento.model;
 
 public enum AgendamentoStatus {
-    SOLICITADO,
-    CONFIRMADO, // Pago
+    PENDENTE_PAGAMENTO,
     CANCELADO,
     FINALIZADO
 }

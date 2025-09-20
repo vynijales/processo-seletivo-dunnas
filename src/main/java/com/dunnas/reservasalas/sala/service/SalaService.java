@@ -48,6 +48,14 @@ public class SalaService {
         return salaRepository.findById(id).orElse(null);
     }
 
+    public Page<Sala> findByRecepcionistaId(Long recepcionistaId, Pageable pageable) {
+        return salaRepository.findBySetorRecepcionistaId(recepcionistaId, pageable);
+    }
+
+    public Page<Sala> searchByRecepcionistaAndQuery(Long recepcionistaId, String query, Pageable pageable) {
+        return salaRepository.findBySetorRecepcionistaIdAndNomeContainingIgnoreCase(recepcionistaId, query, pageable);
+    }
+
     @Transactional
     public Sala create(SalaRequest req) {
         Sala novoSala = salaMapper.toEntity(req);

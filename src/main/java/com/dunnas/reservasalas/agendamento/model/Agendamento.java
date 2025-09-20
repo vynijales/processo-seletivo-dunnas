@@ -75,7 +75,7 @@ public class Agendamento extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     @Builder.Default
-    private AgendamentoStatus status = AgendamentoStatus.CONFIRMADO;
+    private AgendamentoStatus status = AgendamentoStatus.PENDENTE_PAGAMENTO;
 
     @Column(name = "valor_pago", nullable = false)
     @PositiveOrZero(message = "O valor deve ser positivo ou zero")

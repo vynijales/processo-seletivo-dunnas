@@ -44,7 +44,7 @@ pageContext.setAttribute("dataFimPadrao", umaHoraDepois.format(html5Formatter));
     </div>
   </c:if>
   
-  <form class="space-y-4" action="${actionUrl}" method="post">
+  <form class="space-y-4" action="${actionUrl}" method="post" id="solicitacaoForm">
     <input type="hidden" name="id" value="${not empty solicitacao.id ? solicitacao.id : ''}" />
     
     <div class="flex flex-col gap-2">
@@ -65,18 +65,30 @@ pageContext.setAttribute("dataFimPadrao", umaHoraDepois.format(html5Formatter));
         </select> 
       </div>
       
+      <!-- Filtro por Setor -->
+      <div>
+        <label for="setorFiltro" class="block font-semibold mb-1">Setor:</label>
+        <select class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                id="setorFiltro" name="setorFiltro">
+          <option value="">Todos os setores</option>
+          <c:forEach var="setor" items="${setores}">
+            <option value="${setor.id}">${setor.nome}</option>
+          </c:forEach>
+        </select> 
+      </div>
+      
       <div>
         <label for="salaId" class="block font-semibold mb-1">Sala:</label>
         <select class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
                 id="salaId" name="salaId" required>
           <option value="">Selecione a sala</option>
           <c:forEach var="s" items="${salas}">
-            <option value="${s.id}" 
+            <option value="${s.id}" data-setor-id="${s.setor.id}"
               <c:choose>
                 <c:when test="${not empty solicitacao.sala and solicitacao.sala.id eq s.id}">selected</c:when>
                 <c:when test="${not empty solicitacaoRequest.salaId and solicitacaoRequest.salaId eq s.id}">selected</c:when>
               </c:choose>>
-              ${s.id} - ${s.nome}
+              ${s.id} - ${s.nome} (${s.setor.nome})
             </option>
           </c:forEach>
         </select> 
@@ -141,3 +153,32 @@ pageContext.setAttribute("dataFimPadrao", umaHoraDepois.format(html5Formatter));
     Voltar à lista
   </a>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const setorFiltro = document.getElementById('setorFiltro');
+    const salaSelect = document.getElementById('salaId');
+    const todasSalas = Array.from(salaSelect.options);
+    
+    setorFiltro.addEventListener('change', function() {
+        const setorId = this.value;
+        
+        // Limpar seleção atual
+        salaSelect.value = '';
+        
+        // Mostrar todas as opções primeiro
+        todasSalas.forEach(option => {
+            option.style.display = '';
+        });
+        
+        // Filtrar por setor se um setor foi selecionado
+        if (setorId) {
+            todasSalas.forEach(option => {
+                if (option.value && option.getAttribute('data-setor-id') !== setorId) {
+                    option.style.display = 'none';
+                }
+            });
+        }
+    });
+});
+</script>

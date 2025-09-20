@@ -34,7 +34,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         // Verifica se existe conflito de agendamento para uma sala
         @Query("SELECT COUNT(s) > 0 FROM Agendamento s WHERE " +
                         "s.sala.id = :salaId AND " +
-                        "s.status IN ('SOLICITADO', 'CONFIRMADO') AND " +
+                        "s.status IN ('PENDENTE_PAGAMENTO') AND " +
                         "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
         boolean existsConflitoAgendamento(
                         @Param("salaId") Long salaId,
@@ -44,7 +44,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         // Busca agendamentos confirmados para uma sala em um período
         @Query("SELECT s FROM Agendamento s WHERE " +
                         "s.sala.id = :salaId AND " +
-                        "s.status = 'CONFIRMADO' AND " +
+                        "s.status = 'PENDENTE_PAGAMENTO' AND " +
                         "s.dataInicio >= :startDate AND " +
                         "s.dataFim <= :endDate")
         List<Agendamento> findAgendamentosConfirmadosPorSalaEPeriodo(
@@ -61,7 +61,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         // Verifica se cliente já tem solicitação em um período
         @Query("SELECT COUNT(s) > 0 FROM Agendamento s WHERE " +
                         "s.cliente.id = :clienteId AND " +
-                        "s.status IN ('SOLICITADO', 'CONFIRMADO') AND " +
+                        "s.status IN ('PENDENTE_PAGAMENTO') AND " +
                         "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
         boolean existsAgendamentoClienteNoPeriodo(
                         @Param("clienteId") Long clienteId,
@@ -70,7 +70,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
         @Query("SELECT COUNT(s) > 0 FROM Agendamento s WHERE " +
                         "s.sala.id = :salaId AND " +
-                        "s.status IN ('SOLICITADO', 'CONFIRMADO') AND " +
+                        "s.status IN ('PENDENTE_PAGAMENTO') AND " +
                         "s.id != :excludeId AND " +
                         "((s.dataInicio <= :dataFim AND s.dataFim >= :dataInicio))")
         boolean existsConflitoAgendamentoExcludingCurrent(

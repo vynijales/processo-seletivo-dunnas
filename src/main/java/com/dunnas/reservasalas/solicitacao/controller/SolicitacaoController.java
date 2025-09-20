@@ -24,6 +24,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.dunnas.reservasalas.core.auth.AuthenticationController;
 import com.dunnas.reservasalas.sala.model.Sala;
 import com.dunnas.reservasalas.sala.repository.SalaRepository;
+import com.dunnas.reservasalas.setor.model.Setor;
+import com.dunnas.reservasalas.setor.repository.SetorRepository;
 import com.dunnas.reservasalas.solicitacao.model.Solicitacao;
 import com.dunnas.reservasalas.solicitacao.model.SolicitacaoStatus;
 import com.dunnas.reservasalas.solicitacao.service.SolicitacaoRequest;
@@ -47,6 +49,7 @@ public class SolicitacaoController {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final SalaRepository salaRepository;
+    private final SetorRepository setorRepository;
 
     @GetMapping
     public String list(
@@ -54,6 +57,7 @@ public class SolicitacaoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "dataFim") String sort,
+            @RequestParam(required = false) Integer salaId,
             Model model) {
 
         Sort.Direction direction = "dataInicio".equals(sort)
@@ -82,7 +86,9 @@ public class SolicitacaoController {
     }
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, Model model) {
+    public String detail(@PathVariable Long id,
+            @RequestParam(required = false) Integer salaId,
+            Model model) {
         Solicitacao solicitacao = solicitacaoService.getById(id);
 
         if (solicitacao == null) {
@@ -101,14 +107,21 @@ public class SolicitacaoController {
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Usuario> clientes = usuarioRepository.findAll();
         List<Sala> salas = salaRepository.findAll();
+        List<Setor> setores = setorRepository.findAll();
 
         // O cliente só pode marcar para si próprio
-        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
+        if (usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
             clientes = List.of(usuarioMapper.toEntity(usuarioLogado));
+        }
+
+        if (usuarioLogado.getRole() == UsuarioRole.RECEPCIONISTA) {
+            setores = setorRepository.findByRecepcionistaId(usuarioLogado.getId());
+            salas = salaRepository.findBySetorRecepcionistaId(usuarioLogado.getId());
         }
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
+        model.addAttribute("setores", setores);
         model.addAttribute("solicitacoesRequest", SolicitacaoRequest.builder().build());
         model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
         return "base";
@@ -120,11 +133,12 @@ public class SolicitacaoController {
         Solicitacao solicitacao = solicitacaoService.getById(id);
         if (solicitacao == null) {
             throw new EntityNotFoundException();
-            // return "redirect:/solicitacoes/${id}";
         }
+
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Usuario> clientes = usuarioRepository.findAll();
         List<Sala> salas = salaRepository.findAll();
+        List<Setor> setores = setorRepository.findAll();
 
         // O cliente só pode marcar para si próprio
         if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
@@ -133,6 +147,7 @@ public class SolicitacaoController {
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
+        model.addAttribute("setores", setores);
         model.addAttribute("solicitacao", solicitacao);
         model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
         return "base";
@@ -152,6 +167,7 @@ public class SolicitacaoController {
 
         List<Usuario> clientes = usuarioRepository.findAll();
         List<Sala> salas = salaRepository.findAll();
+        List<Setor> setores = setorRepository.findAll();
 
         if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
             clientes = List.of(usuarioMapper.toEntity(usuarioLogado));
@@ -159,6 +175,7 @@ public class SolicitacaoController {
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
+        model.addAttribute("setores", setores);
 
         if (result.hasErrors()) {
             model.addAttribute("errorMessage", "Erros de validação encontrados");
@@ -174,45 +191,6 @@ public class SolicitacaoController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erro ao criar solicitação: " + e.getMessage());
             model.addAttribute("solicitacaoRequest", solicitacaoRequest); // Mantém os dados preenchidos
-            model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
-            return "base";
-        }
-    }
-
-    @PostMapping("/{id}/editar")
-    public String update(
-            @PathVariable Long id,
-            @Valid @ModelAttribute("solicitacaoRequest") SolicitacaoRequest solicitacaoRequest,
-            BindingResult result,
-            RedirectAttributes redirectAttributes,
-            Model model) {
-
-        // Recarregar dados necessários para o formulário
-        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
-        List<Usuario> clientes = usuarioRepository.findAll();
-        List<Sala> salas = salaRepository.findAll();
-
-        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
-            clientes = List.of(usuarioMapper.toEntity(usuarioLogado));
-        }
-
-        model.addAttribute("clientes", clientes);
-        model.addAttribute("salas", salas);
-
-        if (result.hasErrors()) {
-            model.addAttribute("errorMessage", "Erros de validação encontrados");
-            model.addAttribute("errors", result.getAllErrors());
-            model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
-            return "base";
-        }
-
-        try {
-            Solicitacao savedSolicitacao = solicitacaoService.update(id, solicitacaoRequest);
-            redirectAttributes.addFlashAttribute("successMessage", "Solicitação atualizada com sucesso!");
-            return "redirect:/solicitacoes/" + savedSolicitacao.getId();
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", "Erro ao atualizar solicitação: " + e.getMessage());
-            model.addAttribute("solicitacaoRequest", solicitacaoRequest);
             model.addAttribute("contentPage", "features/solicitacao/solicitacao-form.jsp");
             return "base";
         }

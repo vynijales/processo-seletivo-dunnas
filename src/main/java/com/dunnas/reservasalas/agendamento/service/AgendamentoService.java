@@ -68,7 +68,6 @@ public class AgendamentoService {
             throw new IllegalArgumentException("A data final deve ser posterior à data inicial");
         }
 
-        // TODO: REMOVER VALIDAÇÃO
         if (existsConflitoAgendamento(req.getSalaId(), req.getDataInicio(), req.getDataFim())) {
             throw new IllegalStateException("Já existe um agendamento para esta sala no período solicitado");
         }
@@ -116,7 +115,7 @@ public class AgendamentoService {
 
     @Transactional
     public Agendamento confirmarAgendamento(Long id) {
-        return updateStatus(id, AgendamentoStatus.CONFIRMADO);
+        return updateStatus(id, AgendamentoStatus.PENDENTE_PAGAMENTO);
     }
 
     @Transactional
@@ -151,8 +150,4 @@ public class AgendamentoService {
         return agendamentoRepository.findByStatusOrderByDataCriacaoAsc("SOLICITADO");
     }
 
-    public List<Agendamento> getAgendamentosConfirmadosPorPeriodo(
-            Long salaId, LocalDateTime startDate, LocalDateTime endDate) {
-        return agendamentoRepository.findAgendamentosConfirmadosPorSalaEPeriodo(salaId, startDate, endDate);
-    }
 }

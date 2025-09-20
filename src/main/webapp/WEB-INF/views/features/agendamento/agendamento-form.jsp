@@ -32,7 +32,7 @@
     </div>
   </c:if>
   
-  <form class="space-y-4" action="${actionUrl}" method="post">
+  <form class="space-y-4" action="${actionUrl}" method="post" id="agendamentoForm">
     <input type="hidden" name="id" value="${not empty agendamento.id ? agendamento.id : ''}" />
     
     <div class="flex flex-col gap-2">
@@ -53,18 +53,30 @@
         </select> 
       </div>
       
+      <!-- Filtro por Setor -->
+      <div>
+        <label for="setorFiltro" class="block font-semibold mb-1">Setor:</label>
+        <select class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                id="setorFiltro" name="setorFiltro">
+          <option value="">Todos os setores</option>
+          <c:forEach var="setor" items="${setores}">
+            <option value="${setor.id}">${setor.nome}</option>
+          </c:forEach>
+        </select> 
+      </div>
+      
       <div>
         <label for="salaId" class="block font-semibold mb-1">Sala:</label>
         <select class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
                 id="salaId" name="salaId" required>
           <option value="">Selecione a sala</option>
           <c:forEach var="s" items="${salas}">
-            <option value="${s.id}" 
+            <option value="${s.id}" data-setor-id="${s.setor.id}"
               <c:choose>
                 <c:when test="${not empty agendamento.sala and agendamento.sala.id eq s.id}">selected</c:when>
                 <c:when test="${not empty agendamentoRequest.salaId and agendamentoRequest.salaId eq s.id}">selected</c:when>
               </c:choose>>
-              ${s.id} - ${s.nome}
+              ${s.id} - ${s.nome} (${s.setor.nome})
             </option>
           </c:forEach>
         </select> 
@@ -74,13 +86,9 @@
         <label for="status" class="block font-semibold mb-1">Status:</label>
         <select class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50" 
                 id="status" name="status" ${usuarioLogado.role == 'CLIENTE' ? 'disabled' : ''}>
-          <option value="SOLICITADO" 
-            <c:if test="${(not empty agendamento.status and agendamento.status == 'SOLICITADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'SOLICITADO')}">selected</c:if>>
-            Solicitado
-          </option>
-          <option value="CONFIRMADO" 
+          <option value="PENDENTE_PAGAMENTO" 
             <c:if test="${(not empty agendamento.status and agendamento.status == 'CONFIRMADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'CONFIRMADO')}">selected</c:if>>
-            Confirmado
+            Pendente para pagamento
           </option>
           <option value="CANCELADO" 
             <c:if test="${(not empty agendamento.status and agendamento.status == 'CANCELADO') or (not empty agendamentoRequest.status and agendamentoRequest.status == 'CANCELADO')}">selected</c:if>>
@@ -121,3 +129,32 @@
     Voltar à lista
   </a>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const setorFiltro = document.getElementById('setorFiltro');
+    const salaSelect = document.getElementById('salaId');
+    const todasSalas = Array.from(salaSelect.options);
+    
+    setorFiltro.addEventListener('change', function() {
+        const setorId = this.value;
+        
+        // Limpar seleção atual
+        salaSelect.value = '';
+        
+        // Mostrar todas as opções primeiro
+        todasSalas.forEach(option => {
+            option.style.display = '';
+        });
+        
+        // Filtrar por setor se um setor foi selecionado
+        if (setorId) {
+            todasSalas.forEach(option => {
+                if (option.value && option.getAttribute('data-setor-id') !== setorId) {
+                    option.style.display = 'none';
+                }
+            });
+        }
+    });
+});
+</script>

@@ -51,33 +51,68 @@ public class SalaController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Sala> salas;
 
-        List<Setor> setores = setorService.list();
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+        List<Setor> setores;
 
-        if (q != null && !q.trim().isEmpty()) {
+        // Se for RECEPCIONISTA, filtra apenas os setores do usuário logado
+        if (usuarioLogado.getRole() == UsuarioRole.RECEPCIONISTA) {
+            setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
 
-            model.addAttribute("query", q);
-
-            if (setorId != null) {
-                salas = salaService.getByQueryAndSetorId(q.trim(), setorId, pageable);
-            }
-            salas = salaService.search(q.trim(), pageable);
-
-        } else {
-            if (setorId != null) {
-                salas = salaService.getBySetorId(setorId, pageable);
+            if (q != null && !q.trim().isEmpty()) {
+                if (setorId != null) {
+                    // Verifica se o setorId pertence ao recepcionista
+                    if (setores.stream().anyMatch(s -> s.getId().equals(setorId.longValue()))) {
+                        salas = salaService.getByQueryAndSetorId(q.trim(), setorId, pageable);
+                    } else {
+                        // Se o setor não pertence ao recepcionista, mostra apenas salas dos seus
+                        // setores
+                        salas = salaService.searchByRecepcionistaAndQuery(usuarioLogado.getId(), q.trim(), pageable);
+                    }
+                } else {
+                    salas = salaService.searchByRecepcionistaAndQuery(usuarioLogado.getId(), q.trim(), pageable);
+                }
             } else {
-                salas = salaService.list(pageable);
+                if (setorId != null) {
+                    // Verifica se o setorId pertence ao recepcionista
+                    if (setores.stream().anyMatch(s -> s.getId().equals(setorId.longValue()))) {
+                        salas = salaService.getBySetorId(setorId, pageable);
+                    } else {
+                        // Se o setor não pertence ao recepcionista, mostra apenas salas dos seus
+                        // setores
+                        salas = salaService.findByRecepcionistaId(usuarioLogado.getId(), pageable);
+                    }
+                } else {
+                    salas = salaService.findByRecepcionistaId(usuarioLogado.getId(), pageable);
+                }
+            }
+        } else {
+            // Para ADMINISTRADOR e outros roles, mostra todas as salas
+            setores = setorService.list();
 
+            if (q != null && !q.trim().isEmpty()) {
+                model.addAttribute("query", q);
+                if (setorId != null) {
+                    salas = salaService.getByQueryAndSetorId(q.trim(), setorId, pageable);
+                } else {
+                    salas = salaService.search(q.trim(), pageable);
+                }
+            } else {
+                if (setorId != null) {
+                    salas = salaService.getBySetorId(setorId, pageable);
+                } else {
+                    salas = salaService.list(pageable);
+                }
             }
         }
+
         model.addAttribute("salas", salas);
         model.addAttribute("setores", setores);
-
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size);
         model.addAttribute("sortField", sort);
         model.addAttribute("totalPages", salas.getTotalPages());
         model.addAttribute("totalItems", salas.getTotalElements());
+        model.addAttribute("usuarioLogado", usuarioLogado);
 
         model.addAttribute("contentPage", "features/sala/sala-listar.jsp");
         return "base";
@@ -85,10 +120,21 @@ public class SalaController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         Sala sala = salaService.getById(id);
 
         if (sala == null) {
             model.addAttribute("errorMessage", "Sala não encontrada no nosso banco de dados");
+            model.addAttribute("contentPage", "features/sala/sala-detalhes.jsp");
+            return "base";
+        }
+
+        // Verifica se o recepcionista tem permissão para ver esta sala
+        if (usuarioLogado.getRole() == UsuarioRole.RECEPCIONISTA &&
+                (sala.getSetor().getRecepcionista() == null ||
+                        !sala.getSetor().getRecepcionista().getId().equals(usuarioLogado.getId()))) {
+            model.addAttribute("errorMessage", "Você não tem permissão para acessar esta sala");
+            return "redirect:/salas";
         }
 
         model.addAttribute("sala", sala);
@@ -99,24 +145,22 @@ public class SalaController {
     @PreAuthorize("hasRole('ADMINISTRADOR', 'FUNCIONARIO')")
     @GetMapping("/criar")
     public String showCreateForm(Model model) {
-
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Setor> setores;
-        if (usuarioLogado != null) {
 
+        if (usuarioLogado != null) {
             if (usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
                 setores = setorService.list();
-
             } else {
-                final long id = usuarioLogado.getId();
-                setores = (setorService.getAllByRecepcionistaId(id));
+                // Para recepcionista, mostra apenas seus setores
+                setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
             }
         } else {
-            return "base";
+            return "redirect:/login";
         }
 
         model.addAttribute("setores", setores);
-        model.addAttribute("salasRequest", SalaRequest.builder().build());
+        model.addAttribute("salaRequest", SalaRequest.builder().build());
         model.addAttribute("contentPage", "features/sala/sala-form.jsp");
         return "base";
     }
@@ -124,20 +168,26 @@ public class SalaController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}/editar")
     public String showEditForm(@PathVariable Long id, Model model) {
+        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         Sala sala = salaService.getById(id);
+
         if (sala == null) {
             return "redirect:/salas";
         }
 
-        UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
+        // Verifica se o recepcionista tem permissão para editar esta sala
+        if (usuarioLogado.getRole() == UsuarioRole.RECEPCIONISTA &&
+                (sala.getSetor().getRecepcionista() == null ||
+                        !sala.getSetor().getRecepcionista().getId().equals(usuarioLogado.getId()))) {
+            return "redirect:/salas";
+        }
+
         List<Setor> setores;
 
-        if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
+        if (usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
             setores = setorService.list();
-        } else if (usuarioLogado != null) {
-            setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
         } else {
-            return "redirect:/login";
+            setores = setorService.getAllByRecepcionistaId(usuarioLogado.getId());
         }
 
         SalaRequest salaRequest = SalaRequest.builder()

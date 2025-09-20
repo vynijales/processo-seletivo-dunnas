@@ -91,7 +91,6 @@ public class UsuarioController extends HttpServlet {
     @GetMapping("/{id}/editar")
     public String editForm(@PathVariable Long id, Model model) {
         Usuario usuario = usuarioService.getById(id);
-
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
 
         if (usuario == null) {
@@ -99,8 +98,24 @@ public class UsuarioController extends HttpServlet {
             return "redirect:/usuarios";
         }
 
-        if (usuario.getRole() != UsuarioRole.CLIENTE && usuario.getId() == usuarioLogado.getId()) {
-            model.addAttribute("errorMessage", "Usuário não encontrado.");
+        boolean podeEditar = false;
+
+        // 1. ADMINISTRADOR pode editar qualquer usuário
+        if (usuarioLogado.getRole() == UsuarioRole.ADMINISTRADOR) {
+            podeEditar = true;
+        }
+        // 2. RECEPCIONISTA pode editar clientes e a si mesmo
+        else if (usuarioLogado.getRole() == UsuarioRole.RECEPCIONISTA) {
+            podeEditar = (usuario.getRole() == UsuarioRole.CLIENTE) ||
+                    usuario.getId().equals(usuarioLogado.getId());
+        }
+        // 3. CLIENTE só pode editar a si mesmo
+        else if (usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
+            podeEditar = usuario.getId().equals(usuarioLogado.getId());
+        }
+
+        if (!podeEditar) {
+            model.addAttribute("errorMessage", "Você não tem permissão para editar este usuário.");
             return "redirect:/usuarios";
         }
 

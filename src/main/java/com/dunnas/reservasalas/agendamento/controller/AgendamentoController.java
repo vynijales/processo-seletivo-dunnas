@@ -27,6 +27,8 @@ import com.dunnas.reservasalas.agendamento.service.AgendamentoService;
 import com.dunnas.reservasalas.core.auth.AuthenticationController;
 import com.dunnas.reservasalas.sala.model.Sala;
 import com.dunnas.reservasalas.sala.repository.SalaRepository;
+import com.dunnas.reservasalas.setor.model.Setor;
+import com.dunnas.reservasalas.setor.repository.SetorRepository;
 import com.dunnas.reservasalas.usuario.model.Usuario;
 import com.dunnas.reservasalas.usuario.model.UsuarioRole;
 import com.dunnas.reservasalas.usuario.repository.UsuarioRepository;
@@ -42,6 +44,7 @@ public class AgendamentoController {
     private final AuthenticationController autenticationController;
     private final AgendamentoService agendamentoService;
     private final UsuarioRepository usuarioRepository;
+    private final SetorRepository setorRepository;
     private final UsuarioMapper usuarioMapper;
     private final SalaRepository salaRepository;
 
@@ -87,13 +90,13 @@ public class AgendamentoController {
         return "base";
     }
 
-    // @PreAuthorize("hasRole('ADMINISTRADOR', 'FUNCIONARIO')")
+    @PreAuthorize("hasRole('ADMINISTRADOR', 'FUNCIONARIO')")
     @GetMapping("/criar")
     public String showCreateForm(Model model) {
-
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Usuario> clientes = usuarioRepository.findAll();
         List<Sala> salas = salaRepository.findAll();
+        List<Setor> setores = setorRepository.findAll();
 
         // O cliente só pode marcar para si próprio
         if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
@@ -102,6 +105,7 @@ public class AgendamentoController {
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
+        model.addAttribute("setores", setores);
         model.addAttribute("agendamentosRequest", AgendamentoRequest.builder().build());
         model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
         return "base";
@@ -113,11 +117,12 @@ public class AgendamentoController {
         Agendamento agendamento = agendamentoService.getById(id);
         if (agendamento == null) {
             throw new EntityNotFoundException();
-            // return "redirect:/agendamentos/${id}";
         }
+
         UsuarioResponse usuarioLogado = autenticationController.usuarioAutenticado();
         List<Usuario> clientes = usuarioRepository.findAll();
         List<Sala> salas = salaRepository.findAll();
+        List<Setor> setores = setorRepository.findAll();
 
         // O cliente só pode marcar para si próprio
         if (usuarioLogado != null && usuarioLogado.getRole() == UsuarioRole.CLIENTE) {
@@ -126,6 +131,7 @@ public class AgendamentoController {
 
         model.addAttribute("clientes", clientes);
         model.addAttribute("salas", salas);
+        model.addAttribute("setores", setores);
         model.addAttribute("agendamento", agendamento);
         model.addAttribute("contentPage", "features/agendamento/agendamento-form.jsp");
         return "base";

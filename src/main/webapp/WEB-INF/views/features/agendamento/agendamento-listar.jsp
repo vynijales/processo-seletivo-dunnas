@@ -9,9 +9,11 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
   <div class="container space-y-4 p-4">
     <div class="page-header">
       <h1 class="page-title">Agendamentos</h1>
-      <a href="/agendamentos/criar" class="btn btn-primary btn-new">
-        <i class="fas fa-plus"></i> Nova Agendamento
-      </a>
+      <c:if test="usuarioLogado != 'CLIENTE'">
+        <a href="/agendamentos/criar" class="btn btn-primary btn-new">
+          <i class="fas fa-plus"></i> Nova Agendamento
+        </a>
+      </c:if>
     </div>
 
     <c:if test="${not empty errorMessage}">
@@ -55,7 +57,7 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
                           ${Capitalizar.capitalizar(s.status)}
                         </span>
                       </c:when>
-                      <c:when test="${s.status == 'CONFIRMADO'}">
+                      <c:when test="${s.status == 'PENDENTE_PAGAMENTO'}">
                         <span class="badge badge-receptionist">
                           ${Capitalizar.capitalizar(s.status)}
                         </span>
@@ -112,9 +114,11 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
               <i class="fas fa-calendar-check"></i>
             </div>
             <h3 class="empty-state-text">Nenhum agendamento encontrada</h3>
-            <a href="/agendamentos/criar" class="btn btn-primary btn-new">
-              <i class="fas fa-plus"></i> Criar Primeiro Agendamento
-            </a>
+            <c:if test="usuarioLogado != 'CLIENTE'">
+              <a href="/agendamentos/criar" class="btn btn-primary btn-new">
+                <i class="fas fa-plus"></i> Criar Primeiro Agendamento
+              </a>
+            </c:if>
           </div>
         </c:otherwise>
       </c:choose>

@@ -34,10 +34,13 @@ public class DataLoader implements CommandLineRunner {
         // Criar usuários administrativos
         final Usuario admin = criarUsuarioSeNaoExistir("Administrador Master", "admin@dunnas.com", "admin123",
                 UsuarioRole.ADMINISTRADOR);
-        final Usuario admin2 = criarUsuarioSeNaoExistir("Administrador Secundário", "admin2@dunnas.com", "admin456",
+        final Usuario admin2 = criarUsuarioSeNaoExistir("Administrador Secundário", "admin2@dunnas.com", "admin123",
                 UsuarioRole.ADMINISTRADOR);
 
         // Criar recepcionistas
+        final Usuario recep0 = criarUsuarioSeNaoExistir("Matheus Piska", "recep@dunnas.com", "admin123",
+                UsuarioRole.RECEPCIONISTA);
+
         final Usuario recep1 = criarUsuarioSeNaoExistir("Maria Silva", "maria.silva@dunnas.com", "recep123",
                 UsuarioRole.RECEPCIONISTA);
         final Usuario recep2 = criarUsuarioSeNaoExistir("João Santos", "joao.santos@dunnas.com", "recep456",
@@ -60,7 +63,7 @@ public class DataLoader implements CommandLineRunner {
                 UsuarioRole.CLIENTE);
 
         // Criar setores
-        Setor dunnas = criarSetorSeNaoExistir("Setor Dunnas", 5000.0, recep1);
+        Setor dunnas = criarSetorSeNaoExistir("Setor Dunnas", 5000.0, recep0);
         Setor ufersa = criarSetorSeNaoExistir("Setor UFERSA", 3000.0, recep2);
         Setor financeiro = criarSetorSeNaoExistir("Setor Financeiro", 7500.0, recep1);
         Setor comercial = criarSetorSeNaoExistir("Setor Comercial", 4500.0, recep3);

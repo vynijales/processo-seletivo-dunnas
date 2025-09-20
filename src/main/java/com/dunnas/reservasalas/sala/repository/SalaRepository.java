@@ -26,4 +26,11 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
 
     List<Sala> findByNomeLike(String nome);
 
+    Page<Sala> findBySetorRecepcionistaId(Long recepcionistaId, Pageable pageable);
+
+    List<Sala> findBySetorRecepcionistaId(Long recepcionistaId);
+
+    Page<Sala> findBySetorRecepcionistaIdAndNomeContainingIgnoreCase(Long recepcionistaId, String nome,
+            Pageable pageable);
+
 }

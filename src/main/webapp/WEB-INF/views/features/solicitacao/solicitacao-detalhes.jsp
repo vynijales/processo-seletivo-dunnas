@@ -99,11 +99,13 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
     </div>
 
     <c:if
-      test="${(usuarioLogado.role == 'ADMINISTRADOR' || usuarioLogado.role == 'RECEPCIONISTA') && solicitacao != null}"
+      test="${(usuarioLogado.getRole() != 'CLIENTE') && solicitacao != null}"
     >
       <div class="user-actions">
         <!-- Botão para Enviar para Pagamento (visível para ADMINISTRADOR e RECEPCIONISTA) -->
-        <c:if test="${solicitacao.status == 'SOLICITADO'}">
+        <c:if
+          test="${solicitacao.status == 'SOLICITADO' && usuarioLogado.getRole() != 'CLIENTE'}"
+        >
           <form
             action="/solicitacoes/${solicitacao.id}/enviar-para-pagamento"
             method="post"

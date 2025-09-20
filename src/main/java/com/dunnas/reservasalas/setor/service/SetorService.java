@@ -50,6 +50,14 @@ public class SetorService {
         return setorRepository.save(novoSetor);
     }
 
+    public Page<Setor> findByRecepcionistaId(Long recepcionistaId, Pageable pageable) {
+        return setorRepository.findByRecepcionistaId(recepcionistaId, pageable);
+    }
+
+    public Page<Setor> searchByRecepcionistaAndQuery(Long recepcionistaId, String query, Pageable pageable) {
+        return setorRepository.findByRecepcionistaIdAndNomeContainingIgnoreCase(recepcionistaId, query, pageable);
+    }
+
     @Transactional
     public Setor update(Long id, SetorRequest req) {
         Setor existingSetor = setorRepository.findById(id)

@@ -73,6 +73,12 @@
     </jsp:include>
   </c:if>
 
+<c:if test="${usuarioLogado.role == 'RECEPCIONISTA'}">
+    <div class="alert alert-info">
+        Você está vendo apenas as salas dos setores dos quais é responsável.
+    </div>
+</c:if>
+
   <div class="data-table-container">
     <c:choose>
       <c:when test="${not empty salas.content && !salas.content.isEmpty()}">

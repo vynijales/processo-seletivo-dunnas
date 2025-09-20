@@ -41,13 +41,15 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
         <i class="fas fa-clipboard-list text-sm"></i>
         Solicitações
       </a>
-      <a
-        href="/salas"
-        class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
-      >
-        <i class="fas fa-door-open text-sm"></i>
-        Salas
-      </a>
+      <c:if test="${usuarioLogado.role != 'CLIENTE'}">
+        <a
+          href="/salas"
+          class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
+        >
+          <i class="fas fa-door-open text-sm"></i>
+          Salas
+        </a>
+      </c:if>
       <a
         href="/setores"
         class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
@@ -55,16 +57,18 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
         <i class="fas fa-building text-sm"></i>
         Setores
       </a>
-      <a
-        href="/usuarios"
-        class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
-      >
-        <i class="fas fa-users text-sm"></i>
-        Usuários
-      </a>
+      <c:if test="${usuarioLogado.role != 'CLIENTE'}">
+        <a
+          href="/usuarios"
+          class="nav-link px-4 py-2 rounded-lg transition-all flex items-center gap-1"
+        >
+          <i class="fas fa-users text-sm"></i>
+          Usuários
+        </a>
+      </c:if>
     </nav>
 
-    <!-- Área do Usuário Melhorada -->
+    <!-- Área do Usuário -->
     <div class="flex items-center gap-3 relative">
       <!-- Badge de Nível de Acesso com Menu Dropdown -->
       <div class="user-menu-container relative">
@@ -185,13 +189,16 @@ import="com.dunnas.reservasalas.core.utils.Capitalizar" %>
         <i class="fas fa-clipboard-list"></i>
         Solicitações
       </a>
-      <a
-        href="/salas"
-        class="mobile-nav-link py-2 px-4 rounded-lg transition-all flex items-center gap-3"
-      >
-        <i class="fas fa-door-open"></i>
-        Salas
-      </a>
+
+      <c:if test="${usuarioLogado.role != 'CLIENTE'}">
+        <a
+          href="/salas"
+          class="mobile-nav-link py-2 px-4 rounded-lg transition-all flex items-center gap-3"
+        >
+          <i class="fas fa-door-open"></i>
+          Salas
+        </a>
+      </c:if>
       <a
         href="/setores"
         class="mobile-nav-link py-2 px-4 rounded-lg transition-all flex items-center gap-3"

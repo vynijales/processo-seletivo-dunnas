@@ -34,19 +34,18 @@ import="com.dunnas.reservasalas.core.utils.FormatarData" %>
 
     <div class="user-details">
       <div class="detail-row">
-        <span class="detail-label">ID:</span>
-        <span class="detail-value">${setor.id}</span>
-      </div>
-      <div class="detail-row">
         <span class="detail-label">Nome:</span>
         <span class="detail-value">${setor.nome}</span>
       </div>
+      <c:if test="${usuarioLogado.role != 'CLIENTE'}">
+        <div class="detail-row">
+          <span class="detail-label">Valor caixa:</span>
+          <span class="detail-value">R$ ${setor.valorCaixa}</span>
+        </div>
+      </c:if>
+
       <div class="detail-row">
-        <span class="detail-label">Valor caixa:</span>
-        <span class="detail-value">R$ ${setor.valorCaixa}</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Recepcionista:</span>
+        <span class="detail-label">Responsável:</span>
         <span class="detail-value"
           >${setor.recepcionista != null ?
           Capitalizar.capitalizar(setor.recepcionista.nome) : 'Não

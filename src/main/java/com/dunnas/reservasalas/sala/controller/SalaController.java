@@ -51,6 +51,8 @@ public class SalaController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Sala> salas;
 
+        List<Setor> setores = setorService.list();
+
         if (q != null && !q.trim().isEmpty()) {
 
             model.addAttribute("query", q);
@@ -68,8 +70,9 @@ public class SalaController {
 
             }
         }
-
         model.addAttribute("salas", salas);
+        model.addAttribute("setores", setores);
+
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size);
         model.addAttribute("sortField", sort);

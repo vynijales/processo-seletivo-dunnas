@@ -107,7 +107,7 @@
                     <p class="password-info">Mínimo de 8 caracteres</p>
                 </c:if>
             </div>
-            <c:if test="${usuarioLogado != null}">
+            <c:if test="${usuarioLogado.role != 'CLIENTE'}">
                 <div class="form-group">
                     <label for="role" class="form-label">Nível de Acesso</label>
                     <select 

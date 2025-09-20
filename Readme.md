@@ -1,171 +1,189 @@
-# Sistema de Gerenciamento de Reserva de Salas
+# ReservaSalas: Sistema de Gerenciamento de Espaços
 
-## Arquitetura
-- **Feature-based:** admin, recepcionista, cliente, auth, core
-- **MVC:** Model (entities, repositories), View (JSPs), Controller (REST endpoints), Service (business logic)
-- **Spring Boot + JSP + PostgreSQL + Flyway**
+O **ReservaSalas** é um sistema monolítico completo para agendamento de salas, desenvolvido em **Java Spring Boot** e **JSP**. A solução foi criada para otimizar o processo de reservas, oferecendo ferramentas especializadas para três perfis de usuário: **Administrador**, **Recepcionista** e **Cliente**.
 
-## Diagrama Relacional
+-----
+
+## 🛠️ Stack Tecnológica
+
+  * **Backend:** Java Spring Boot (MVC) 
+  * **View:** Java Server Pages (JSP) 
+  * **Banco de Dados:** PostgreSQL 
+  * **Versionamento de BD:** Flyway 
+
+-----
+
+## ✨ Funcionalidades
+
+O sistema foi desenhado para atender aos requisitos de cada perfil, garantindo uma experiência completa e segura.
+
+  * **Gerenciamento de Perfis:**
+
+      * **Cadastro:** Apenas novos Clientes podem se cadastrar livremente. Recepcionistas são adicionados pelo Administrador, e um Administrador padrão é definido via *seed* no DataLoader.java.
+      * **Autenticação e Autorização:** Controle de acesso baseado em papéis (roles) para Clientes, Recepcionistas e Administradores garantido pelo SecurityConfig e annotations de @PreAuthorize.
+
+  * **Gestão de Espaços:**
+
+      * **CRUD de Setores:** O Administrador gerencia os setores, que podem ter um Recepcionista e um valor em caixa.
+      * **CRUD de Salas:** O Administrador cria e gerencia as salas, definindo capacidade e valor de aluguel. Cada sala pertence a um setor.
+      * **Visualização:** Clientes podem visualizar salas disponíveis e seus valores de aluguel.
+
+  * **Fluxo de Agendamento:**
+
+      * **Solicitação:** Clientes solicitam o agendamento de uma sala.
+      * **Confirmação:** Recepcionistas confirmam as solicitações, o que gera um agendamento. O Recepcionista pode também fazer um agendamento instantâneo.
+      * **Pagamento:** A confirmação exige o pagamento de um sinal de 50% do valor da sala.
+      * **Finalização:** Recepcionistas registram a finalização do uso da sala.
+
+  * **Relatórios e Histórico:**
+
+      * O sistema mantém um histórico completo de todas as transações e agendamentos.
+      * **Visão do Cliente:** Histórico de todos os seus agendamentos.
+      * **Visão do Recepcionista:** Histórico e relatórios dos valores em caixa do seu setor.
+      * **Visão do Administrador:** Visão global de agendamentos e transações de todos os setores.
+
+-----
+
+## 🏛️ Arquitetura e Decisões de Design
+
+A arquitetura monolítica e modular foi uma escolha estratégica para simplificar o desenvolvimento e o *deploy* inicial, ao mesmo tempo que mantém a organização e a clareza do código.
+
+  * **Distribuição da Lógica de Negócio:**
+
+      * **Justificativa:** Conforme o requisito do desafio, mais de 50% da lógica de negócio reside no banco de dados.
+      * **Detalhes:**
+          * **Implementação em Nível de Banco:** 
+          * **Implementação na Aplicação:** `[Insira aqui uma explicação sobre a lógica de negócio implementada no Spring Boot. Ex.: "A lógica de validação de formulários e o controle de fluxo de status (SOLICITADO, AGUARDANDO_PAGAMENTO, CONFIRMADO) são gerenciados na camada de serviço da aplicação, aproveitando o Bean Validation do Spring."]`
+
+  * **Padrões de Projeto:**
+
+      * **Padrão MVC + Service + Repository:** Cada módulo (como `usuario`, `sala`) segue essa estrutura, garantindo a **separação de responsabilidades** e facilitando a manutenção.
+      * **Feature Pattern:** 
+
+  * **Segurança e Consistência:**
+
+      * **Spring Security:** `[Explique como o Spring Security foi configurado. Ex.: "A autenticação e a autorização são gerenciadas pelo Spring Security com controle de acesso baseado em papéis (@PreAuthorize), garantindo que cada usuário acesse apenas as rotas e funcionalidades permitidas."]`
+      * **Flyway:** `[Explique por que o Flyway foi a escolha. [cite_start]Ex.: "O Flyway permite um versionamento incremental do banco de dados, o que assegura que todas as alterações no schema (criação de tabelas, procedures, etc.) sejam aplicadas de forma controlada, facilitando a portabilidade e o deploy em diferentes ambientes."]` 
+
+-----
+
+## 📌 Modelo de Dados
+
+O banco de dados relacional é composto pelas seguintes entidades principais, garantindo a integridade dos dados.
+
+```mermaid
+erDiagram
+    USUARIOS {
+        BIGSERIAL id PK
+        VARCHAR nome
+        VARCHAR email UK
+        VARCHAR senha
+        VARCHAR role
+        BOOLEAN ativo
+        TIMESTAMP data_criacao
+        TIMESTAMP data_atualizacao
+    }
+    SETORES {
+        BIGSERIAL id PK
+        VARCHAR nome
+        NUMERIC valor_caixa
+        BIGINT recepcionista_id FK
+        BOOLEAN ativo
+        TIMESTAMP data_criacao
+        TIMESTAMP data_atualizacao
+    }
+    SALAS {
+        BIGSERIAL id PK
+        VARCHAR nome
+        INT capacidade
+        NUMERIC valor_aluguel
+        BIGINT setor_id FK
+        BOOLEAN ativo
+        TIMESTAMP data_criacao
+        TIMESTAMP data_atualizacao
+    }
+    SOLICITACOES_AGENDAMENTOS {
+        BIGSERIAL id PK
+        BIGINT cliente_id FK
+        BIGINT sala_id FK
+        TIMESTAMP data_inicio
+        TIMESTAMP data_fim
+        VARCHAR status
+        BOOLEAN sinal_pago
+        NUMERIC valor_pago
+        TIMESTAMP data_criacao
+        TIMESTAMP data_atualizacao
+    }
+    AGENDAMENTOS {
+        BIGSERIAL id PK
+        BIGINT solicitacao_id FK
+        BIGINT cliente_id FK
+        BIGINT sala_id FK
+        TIMESTAMP data_inicio
+        TIMESTAMP data_fim
+        NUMERIC valor_pago
+        VARCHAR status
+        TIMESTAMP data_criacao
+        TIMESTAMP data_atualizacao
+    }
+
+    USUARIOS ||--o{ SETORES : "recepcionista"
+    SETORES ||--o{ SALAS : "contém"
+    USUARIOS ||--o{ SOLICITACOES_AGENDAMENTOS : "cliente"
+    SALAS ||--o{ SOLICITACOES_AGENDAMENTOS : "solicitada_em"
+    USUARIOS ||--o{ AGENDAMENTOS : "cliente"
+    SALAS ||--o{ AGENDAMENTOS : "agendada_em"
+    SOLICITACOES_AGENDAMENTOS ||--o| AGENDAMENTOS : "gera"
 ```
-USUARIO (id, nome, email, senha, role, ativo)
-   |
-   |--< SETOR (id, nome, recepcionista_id, caixa, ativo)
-         |
-         |--< SALA (id, nome, setor_id, valor, capacidade, ativo)
 
-RESERVA (id, sala_id, cliente_id, recepcionista_id, status, data_inicio, data_fim, valor, sinal_pago, ...)
-   |
-   |--< TRANSACAO (id, reserva_id, tipo, valor, usuario_id, data)
-```
+-----
 
-## Setup
-1. Clone o projeto
-2. Configure o banco PostgreSQL e credenciais em `application.yaml`
-3. Execute as migrações Flyway (`mvn flyway:migrate`)
-4. Build e rode o projeto (`./mvnw spring-boot:run`)
-5. Acesse via navegador (`http://localhost:8080`)
-6. Admin inicial: `admin@reservasalas.com` / senha: `adminpasswordhash` (troque para hash real)
+## 🌐 Principais Rotas da Aplicação
 
-## Lógica de Negócio
-- **No banco:**
-  - Prevenção de duplo agendamento (trigger)
-  - Atualização de caixa do setor (trigger)
-  - Transações de pagamento (trigger)
-  - Relatórios/histórico (views)
-- **Na aplicação:**
-  - Orquestração, validação, fluxo de usuário, autenticação
+| Funcionalidade | URL | Perfil de Acesso |
+| :--- | :--- | :--- |
+| **Login** | `/auth/entrar` | Público |
+| **Criar Conta** | `/auth/criar-conta` | Público |
+| **Dashboard** | `/admin/dashboard` | ADMIN |
+| **Gerenciar Setores** | `/admin/setores` | ADMIN |
+| **Gerenciar Salas** | `/setor/{id}/salas` | RECEPCIONISTA, ADMIN |
+| **Minhas Solicitações** | `/cliente/solicitacoes` | CLIENTE |
+| **Nova Solicitação** | `/solicitacao/nova?sala={id}` | CLIENTE |
+| **Painel Recepcionista** | `/recepcionista/painel` | RECEPCIONISTA |
+| **Aprovar Solicitações**| `/recepcionista/solicitacoes`| RECEPCIONISTA |
 
-## Decisões
-- Feature folders para escalabilidade
-- Lógica crítica no banco para performance e integridade
-- Spring Security para RBAC
-- JSP para views simples e dinâmicas
+-----
 
-## Observações
-- Adicione recepcionistas e setores via admin
-- Clientes podem se registrar livremente
-- Recepcionista gerencia apenas seu setor
-- Relatórios disponíveis por papel
-
----
-Para dúvidas, consulte o código ou entre em contato.
-
-## 📋 Descrição do Projeto
-
-Sistema de gerenciamento de reservas de salas com três tipos de usuários: Administrador, Recepcionista e Cliente.
-
-## 👥 Tipos de Usuários
-
-### Administrador
-- Configuração do sistema
-- Cadastro de recepcionistas, setores e salas
-- Visualização de histórico completo de todas as transações
-
-### Recepcionista
-- Gerenciamento do setor designado
-- Abertura/fechamento do setor
-- Confirmação de solicitações de reserva
-- Realização de agendamentos instantâneos
-- Visualização de histórico do setor
-
-### Cliente
-- Visualização de salas disponíveis
-- Solicitação de agendamento de sala
-- Pagamento de 50% do valor como sinal
-- Visualização do próprio histórico
-
-## 🚀 Funcionalidades Principais
-
-- **CRUD de setores** (Admin)
-- **CRUD de salas** (Admin)
-- **CRUD de recepcionistas** (Admin)
-- **Visualização de salas disponíveis** e valores
-- **Solicitação de agendamento** de sala
-- **Confirmação de agendamento** de sala
-- **Finalização da utilização** da sala
-- **Relatórios** financeiros e de utilização
-
-## 🛠 Stack Tecnológica
-
-- **Backend**: Java Spring Boot
-- **View**: Java Server Pages (JSP)
-- **Banco de dados**: PostgreSQL
-- **Versionamento de BD**: Flyway
-
-## 📊 Distribuição da Lógica de Negócio
-
-Pelo menos **50% da lógica de negócio** será implementada diretamente no banco de dados através de:
-- Stored procedures
-- Functions
-- Triggers
-- Constraints
-- Transações
-
-## 🔐 Autenticação e Autorização
-
-Sistema de autenticação com controle de acesso baseado em papéis (RBAC) para os três tipos de usuários.
-
-## 📁 Estrutura do Projeto
-
-```
-sistema-reserva-salas/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   ├── resources/
-│   │   │   └── db/
-│   │   │       └── migration/
-│   │   └── webapp/
-│   └── test/
-├── documentation/
-│   └── database-diagram.md
-└── README.md
-```
-
-## Arquitetura de persistência e camadas
-
- Banco de Dados
-     ^
-     | (Lê/Grava)
-     |
-[ ENTITY ]  ->  (Camada de Persistência: Repository)
-     ^
-     | (Usa)
-     |
-[ SERVICE ]  ->  (Camada de Lógica de Negócio)
-     ^
-     | (Usa/Conversão)
-     |
-[ CONTROLLER ]
-     ^
-     | (Retorna)
-     |
-[  DTO   ]  <-  (Data Transfer Object) -> [ VIEW / API RESPONSE ]
-
-## ⚙️ Setup e Configuração
+## ⚙️ Guia de Instalação e Execução
 
 ### Pré-requisitos
-- Java JDK 11+
-- PostgreSQL 12+
-- Maven 3.6+
 
-### Instalação
-1. Clone o repositório
-2. Configure as credenciais do banco em `application.properties`
-3. Execute `mvn flyway:migrate` para criar a estrutura do banco
-4. Execute `mvn spring-boot:run` para iniciar a aplicação
+  * Java JDK 17+
+  * Maven 3.6+
+  * PostgreSQL 12+
 
-### Credenciais Iniciais
-O administrador padrão será criado via seed com as credenciais:
-- Email: admin@system.com
-- Senha: admin123
+### 1\. Configuração do Banco de Dados
 
-## 📝 Documentação Adicional
+```bash
+# Crie o banco de dados no PostgreSQL
+createdb reserva_salas
 
-Para informações detalhadas sobre:
-- Diagrama relacional do banco de dados
-- Decisões de arquitetura
-- Regras implementadas no banco vs aplicação
-- Instruções completas de setup
+# No arquivo src/main/resources/application.properties, configure as credenciais:
+spring.datasource.url=jdbc:postgresql://localhost:5432/reserva_salas
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+```
 
-Consulte a documentação completa no diretório `documentation/` do projeto.
+### 2\. Build e Execução
+
+```bash
+# Clone o repositório
+git clone https://github.com/vynijales/processo-seletivo-dunnas.git
+cd ReservaSalas
+
+# Execute a aplicação com Maven
+mvn clean install
+mvn spring-boot:run
+```
+
+O Flyway executará as migrações do banco de dados automaticamente na inicialização.

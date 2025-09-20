@@ -46,14 +46,44 @@ O sistema foi desenhado para atender aos requisitos de cada perfil, garantindo u
 
 ## 🏛️ Arquitetura e Decisões de Design
 
-A arquitetura monolítica e modular foi uma escolha estratégica para simplificar o desenvolvimento e o *deploy* inicial, ao mesmo tempo que mantém a organização e a clareza do código.
+Claro, aqui está uma versão melhorada do seu texto, com uma redação mais técnica e fluida, mantendo a estrutura proposta:
+
+
+A arquitetura adotada é **monolítica modular**, alinhada com as tecnologias definidas (Spring Boot e JSP). A organização do código segue o **padrão orientado a funcionalidades (Feature-Oriented Pattern)**, que se integra perfeitamente ao modelo MVC, promovendo alta coesão e baixo acoplamento. Cada funcionalidade do sistema é um módulo autocontido, encapsulando todos os seus componentes, o que facilita a manutenção, o teste e a escalabilidade horizontal da equipe.
+
+A estrutura de um módulo típico segue esta hierarquia:
+
+```
+└── (feature)
+    ├── controller
+    │   └── (Feature)Controller.java
+    ├── model
+    │   ├── (Feature)Entity.java
+    │   └── (Feature)Enums.java
+    ├── repository
+    │   └── (Feature)Repository.java
+    └── service
+        ├── (Feature)Mapper.java
+        ├── (Feature)Request.java
+        ├── (Feature)Response.java
+        └── (Feature)Service.java
+```
+
+**Vantagens desta abordagem:**
+
+*   **Alta Coesão:** Todos os artefatos relacionados a uma mesma regra de negócio estão agrupados, tornando o código mais intuitivo e fácil de navegar.
+*   **Baixo Acoplamento:** Módulos/features possuem dependências mínimas entre si, permitindo que sejam desenvolvidos, modificados e testados de forma isolada.
+*   **Maior Legibilidade:** A estrutura é previsível e clara, acelerando o onboarding de novos desenvolvedores.
+*   **Escalabilidade da Equipe:** Diferentes squads podem trabalhar em features distintas com menos risco de conflitos de merge e interferência no código alheio.
+
+Essa combinação entre uma arquitetura monolítica modular e a organização por features resulta em um sistema bem estruturado, que mantém as vantagens de simplicidade de um monolito enquanto incorpora a modularidade essencial para projetos de médio e grande porte.
 
   * **Distribuição da Lógica de Negócio:**
 
       * **Justificativa:** Conforme o requisito do desafio, mais de 50% da lógica de negócio reside no banco de dados.
       * **Detalhes:**
-          * **Implementação em Nível de Banco:** 
-          * **Implementação na Aplicação:** `[Insira aqui uma explicação sobre a lógica de negócio implementada no Spring Boot. Ex.: "A lógica de validação de formulários e o controle de fluxo de status (SOLICITADO, AGUARDANDO_PAGAMENTO, CONFIRMADO) são gerenciados na camada de serviço da aplicação, aproveitando o Bean Validation do Spring."]`
+          * **Implementação em Nível de Banco:** Foram criadas as tabelas de `usuarios`, `setores`, `salas`, `solicitacoes` e `agendamentos`. Aplicado triggers nos momentos julgados como necessário, bem como indexação para melhora de performance.
+          * **Implementação na Aplicação:** `A aplicação foi distribuida harmonizamento entre `
 
   * **Padrões de Projeto:**
 
@@ -62,9 +92,8 @@ A arquitetura monolítica e modular foi uma escolha estratégica para simplifica
 
   * **Segurança e Consistência:**
 
-      * **Spring Security:** `[Explique como o Spring Security foi configurado. Ex.: "A autenticação e a autorização são gerenciadas pelo Spring Security com controle de acesso baseado em papéis (@PreAuthorize), garantindo que cada usuário acesse apenas as rotas e funcionalidades permitidas."]`
-      * **Flyway:** `[Explique por que o Flyway foi a escolha. [cite_start]Ex.: "O Flyway permite um versionamento incremental do banco de dados, o que assegura que todas as alterações no schema (criação de tabelas, procedures, etc.) sejam aplicadas de forma controlada, facilitando a portabilidade e o deploy em diferentes ambientes."]` 
-
+      * **Spring Security:** A autenticação e a autorização no Spring Security são configuradas utilizando controle de acesso baseado em papéis. O sistema usa @PreAuthorize para garantir que cada usuário só possa acessar as rotas e funcionalidades permitidas de acordo com seu papel (ADMIN, RECEPCIONISTA, CLIENTE). Além disso, a configuração de segurança foi feita para proteger endpoints sensíveis, assegurando que os usuários não autorizados não consigam acessar dados ou realizar ações restritas. A autenticação é realizada por meio de um formulário de login, e as permissões são atribuídas dinamicamente com base no perfil do usuário.
+      * **Flyway:** O Flyway foi utilizado para garantir o controle de versão do banco de dados, permitindo o histórico completo de todas as alterações no schema, o que facilita o rastreamento e a reversão de mudanças. Ele assegura a consistência entre os ambientes, garantindo que todos possuam o mesmo schema, e facilita a colaboração entre desenvolvedores ao permitir que múltiplos colaboradores sincronizem suas migrações de forma segura e eficiente.
 -----
 
 ## 📌 Modelo de Dados
@@ -142,15 +171,70 @@ erDiagram
 
 | Funcionalidade | URL | Perfil de Acesso |
 | :--- | :--- | :--- |
-| **Login** | `/auth/entrar` | Público |
-| **Criar Conta** | `/auth/criar-conta` | Público |
-| **Dashboard** | `/admin/dashboard` | ADMIN |
-| **Gerenciar Setores** | `/admin/setores` | ADMIN |
-| **Gerenciar Salas** | `/setor/{id}/salas` | RECEPCIONISTA, ADMIN |
+| **Login** | `/entrar` | Público |
+| **Criar Conta** | `/criar-conta` | Público |
+| **Gerenciar Setores** | `/setores`  | ADMIN, RECEPCIONISTA |
+| **Gerenciar Salas** | `/salas` | RECEPCIONISTA, ADMIN |
 | **Minhas Solicitações** | `/cliente/solicitacoes` | CLIENTE |
-| **Nova Solicitação** | `/solicitacao/nova?sala={id}` | CLIENTE |
-| **Painel Recepcionista** | `/recepcionista/painel` | RECEPCIONISTA |
-| **Aprovar Solicitações**| `/recepcionista/solicitacoes`| RECEPCIONISTA |
+| **Nova Solicitação** | `/solicitacao/criar?salaId={id}` | CLIENTE |
+| **Painel Recepcionista** | `/recepcionista` | RECEPCIONISTA |
+| **Aprovar Solicitações**| `/recepcionista`| RECEPCIONISTA |
+
+-----
+## Dependências utilizadas
+
+🔹 spring-boot-starter-data-jpa
+
+Evita boilerplate ao lidar com persistência de dados, usando JPA e Spring Data. Também ajuda na segurança ao evitar SQL injection por meio de consultas parametrizadas.
+
+🔹 spring-boot-starter-security
+
+Adiciona autenticação e autorização com várias camadas de proteção. Garante segurança com filtros, proteção contra CSRF e controle de acesso por papéis.
+
+🔹 spring-boot-starter-validation
+
+Permite validar dados de entrada com anotações simples (@NotNull, @Email, etc.), garantindo integridade e evitando lógica de validação repetida.
+
+🔹 spring-boot-starter-web
+
+Fornece suporte para APIs REST e páginas web, incluindo servidor embutido (Tomcat), facilitando o desenvolvimento de aplicações web completas.
+
+🔹 flyway-core + flyway-database-postgresql
+
+Garante versionamento seguro e rastreável do banco de dados, evitando inconsistências entre ambientes de desenvolvimento, teste e produção.
+
+🔹 spring-boot-devtools
+
+Acelera o desenvolvimento com hot reload e reinicialização automática da aplicação ao detectar mudanças no código.
+
+🔹 postgresql
+
+Driver JDBC para conexão segura e eficiente com o banco de dados PostgreSQL.
+
+🔹 lombok
+
+Reduz drasticamente o boilerplate ao gerar automaticamente getters, setters, construtores, entre outros, com anotações simples como @Data.
+
+🔹 spring-boot-starter-test
+
+Pacote completo para testes unitários e de integração, com suporte ao JUnit, Mockito e testes Spring, garantindo qualidade do código.
+
+🔹 spring-security-test
+
+Permite testes de segurança, autenticação e autorização, simulando usuários e acessos com facilidade.
+
+🔹 tomcat-embed-jasper
+
+Necessário para compilar e interpretar páginas JSP no Tomcat embarcado, usado na camada de visualização.
+
+🔹 jakarta.servlet.jsp.jstl
+
+Fornece bibliotecas padrão para uso em JSPs (<c:if>, <c:forEach>, etc.), ajudando na organização da lógica de apresentação.
+
+🔹 jakarta.servlet.jsp-api
+
+API essencial para o suporte a JSPs no ambiente de desenvolvimento, usada pelo container para interpretar as páginas.
+
 
 -----
 
@@ -158,9 +242,9 @@ erDiagram
 
 ### Pré-requisitos
 
-  * Java JDK 17+
-  * Maven 3.6+
-  * PostgreSQL 12+
+  * Java JDK 21+
+  * Maven 3.8.7+
+  * PostgreSQL 16.1+
 
 ### 1\. Configuração do Banco de Dados
 
@@ -179,7 +263,7 @@ spring.datasource.password=sua_senha
 ```bash
 # Clone o repositório
 git clone https://github.com/vynijales/processo-seletivo-dunnas.git
-cd ReservaSalas
+cd processo-seletivo-dunnas
 
 # Execute a aplicação com Maven
 mvn clean install
